@@ -18,35 +18,23 @@ exports.handler = async (event) => {
     const body = JSON.parse(event.body);
     const { messages, system } = body;
 
-    // Build simple prompt text
+    // Build prompt
     let prompt = '';
-    if (system) {
-      prompt += system + '\n\n';
-    }
+    if (system) prompt += system + '\n\n';
     for (const msg of messages) {
-      if (msg.role === 'user') {
-        prompt += 'User: ' + msg.content + '\n';
-      } else {
-        prompt += 'Assistant: ' + msg.content + '\n';
-      }
+      prompt += (msg.role === 'user' ? 'User: ' : 'Assistant: ') + msg.content + '\n';
     }
     prompt += 'Assistant:';
 
     const apiKey = process.env.GEMINI_API_KEY;
-    
     if (!apiKey) {
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({
-          content: [{ type: 'text', text: 'Error: GEMINI_API_KEY tidak ditemukan di environment variables.' }]
-        }),
-      };
+      return { statusCode: 200, headers, body: JSON.stringify({ content: [{ type: 'text', text: 'Error: API key tidak ditemukan.' }] }) };
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // ✅ Gunakan model yang benar
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
-    const geminiRes = await fetch(url, {
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -55,30 +43,14 @@ exports.handler = async (event) => {
       }),
     });
 
-    const geminiData = await geminiRes.json();
-    
-    // Log for debugging
-    console.log('Gemini status:', geminiRes.status);
-    console.log('Gemini response:', JSON.stringify(geminiData).slice(0, 500));
-
-    const text = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!text) {
-      const errMsg = geminiData?.error?.message || JSON.stringify(geminiData);
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({
-          content: [{ type: 'text', text: `Gemini error: ${errMsg}` }]
-        }),
-      };
-    }
+    const data = await res.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
-        content: [{ type: 'text', text }]
+        content: [{ type: 'text', text: text || `Error: ${data?.error?.message || 'Tidak ada respons'}` }]
       }),
     };
 
@@ -86,9 +58,7 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({
-        content: [{ type: 'text', text: `Function error: ${error.message}` }]
-      }),
+      body: JSON.stringify({ content: [{ type: 'text', text: `Error: ${error.message}` }] }),
     };
   }
 };
