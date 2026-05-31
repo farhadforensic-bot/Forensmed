@@ -9,7 +9,6 @@ exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };
   }
-
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
@@ -26,31 +25,41 @@ exports.handler = async (event) => {
     prompt += 'Assistant:';
 
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return { statusCode: 200, headers, body: JSON.stringify({ content: [{ type: 'text', text: 'Error: API key tidak ditemukan.' }] }) };
+
+    // Coba beberapa model secara berurutan
+    const models = [
+      'gemini-1.5-flash-8b',
+      'gemini-1.5-flash-8b-001',
+      'gemini-1.0-pro',
+    ];
+
+    let lastError = '';
+    for (const model of models) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
+        }),
+      });
+      const data = await res.json();
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) {
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({ content: [{ type: 'text', text }] }),
+        };
+      }
+      lastError = data?.error?.message || 'Unknown error';
     }
-
-    // ✅ Gunakan gemini-2.0-flash — model terbaru yang tersedia
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
-      }),
-    });
-
-    const data = await res.json();
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({
-        content: [{ type: 'text', text: text || `Error: ${data?.error?.message || 'Tidak ada respons'}` }]
-      }),
+      body: JSON.stringify({ content: [{ type: 'text', text: `Error: ${lastError}` }] }),
     };
 
   } catch (error) {
