@@ -1,0 +1,33 @@
+{
+  "id": "/",
+  "name": "ForensMed Pro",
+  "short_name": "ForensMed",
+  "description": "Asisten Kedokteran Forensik untuk dokter spesialis. PMI, luka, autopsi, medikolegal Indonesia.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "portrait",
+  "theme_color": "#060c16",
+  "background_color": "#060c16",
+  "lang": "id",
+  "categories": ["medical", "health"],
+  "icons": [
+    {
+      "src": "https://ui-avatars.com/api/?name=FM&size=192&background=060c16&color=00d4b0&bold=true&format=png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=FM&size=512&background=060c16&color=00d4b0&bold=true&format=png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {"name": "Kalkulator PMI", "short_name": "PMI", "url": "/#pmi"},
+    {"name": "ICD-10 Search", "short_name": "ICD-10", "url": "/#icd"}
+  ]
+}
