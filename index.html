@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#060c16">
+<meta name="description" content="Asisten Kedokteran Forensik untuk dokter spesialis — PMI, luka, autopsi, ICD-10 WHO, medikolegal Indonesia">
+<title>ForensMed Pro</title>
+<link rel="manifest" href="/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#060c16;--sur:#0b1726;--sur2:#0f2035;--bor:#163050;
+  --txt:#cce4f5;--mut:#4a7090;--acc:#00d4b0;--acc2:#0066ff;
+  --gld:#f0b840;--dan:#ff3d5e;--suc:#00bb88;--car:#0b1726;--tag:#0f2035;
+}
+.light {
+  --bg:#eef4fb;--sur:#fff;--sur2:#e0eaf5;--bor:#b8cfe0;
+  --txt:#0a1e30;--mut:#4a7090;--acc:#006d5a;--acc2:#0044bb;
+  --gld:#9a6a00;--dan:#cc1133;--suc:#007755;--car:#fff;--tag:#e0eaf5;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--txt);font-family:'Instrument Sans',sans-serif;min-height:100vh;max-width:480px;margin:0 auto;position:relative;}
+input,select,textarea,button{font-family:inherit;}
+input,select,textarea{width:100%;background:var(--sur2);border:1px solid var(--bor);border-radius:8px;color:var(--txt);padding:10px 12px;font-size:13px;outline:none;box-sizing:border-box;}
+textarea{resize:vertical;line-height:1.6;}
+.card{background:var(--car);border:1px solid var(--bor);border-radius:14px;padding:18px 16px;margin-bottom:14px;}
+.btn{padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px;font-family:inherit;}
+.btn-primary{background:linear-gradient(135deg,var(--acc2),var(--acc));color:#000;}
+.btn-outline{background:transparent;border:1px solid var(--bor);color:var(--txt);}
+.btn-ghost{background:var(--sur2);border:1px solid var(--bor);color:var(--txt);}
+.btn-full{width:100%;justify-content:center;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.label{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:5px;}
+.field{margin-bottom:12px;}
+.badge{font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:700;padding:2px 7px;border-radius:4px;}
+.stitle{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--bor);}
+.stitle-icon{font-size:18px;}
+.stitle-text{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--txt);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.info-box{background:rgba(0,102,255,.08);border:1px solid rgba(0,102,255,.25);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--txt);line-height:1.6;margin-bottom:14px;}
+.warn-box{background:rgba(240,184,64,.08);border:1px solid rgba(240,184,64,.25);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--txt);line-height:1.6;margin-bottom:10px;}
+/* NAV */
+.header{position:sticky;top:0;z-index:50;background:var(--sur);border-bottom:1px solid var(--bor);padding:13px 16px;display:flex;align-items:center;justify-content:space-between;}
+.logo-wrap{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--acc2),var(--acc));display:flex;align-items:center;justify-content:center;font-size:17px;}
+.logo-name{font-family:'Playfair Display',serif;font-size:17px;color:var(--txt);line-height:1;}
+.logo-sub{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;}
+.header-btns{display:flex;gap:6px;}
+.who-btn{background:rgba(0,102,255,.12);border:1px solid rgba(0,102,255,.3);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--acc2);cursor:pointer;font-weight:700;}
+.theme-btn{background:var(--sur2);border:1px solid var(--bor);border-radius:8px;padding:6px 10px;font-size:14px;cursor:pointer;color:var(--txt);}
+.content{padding:18px 16px 90px;}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--sur);border-top:1px solid var(--bor);display:flex;z-index:50;}
+.nav-btn{flex:1;padding:9px 0 10px;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.nav-icon{font-size:17px;}
+.nav-label{font-size:9px;color:var(--mut);font-weight:400;letter-spacing:.04em;}
+.nav-btn.active .nav-label{color:var(--acc);font-weight:700;}
+/* PAGE */
+.page{display:none;}
+.page.active{display:block;}
+.page-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--txt);margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--mut);margin-bottom:18px;}
+/* TABS */
+.tabs{display:flex;background:var(--sur2);border-radius:10px;padding:3px;border:1px solid var(--bor);margin-bottom:16px;}
+.tab{flex:1;padding:8px 0;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:transparent;color:var(--mut);}
+.tab.active{background:var(--acc);color:#000;}
+/* ICD */
+.icd-search-wrap{position:relative;margin-bottom:12px;}
+.icd-results{position:absolute;top:100%;left:0;right:0;background:var(--sur);border:1px solid var(--acc);border-top:none;border-radius:0 0 8px 8px;max-height:220px;overflow-y:auto;z-index:100;display:none;}
+.icd-results.open{display:block;}
+.icd-item{padding:9px 12px;cursor:pointer;display:flex;gap:8px;align-items:flex-start;border-bottom:1px solid var(--bor);}
+.icd-item:hover{background:rgba(0,212,176,.08);}
+.icd-code{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--acc);background:rgba(0,212,176,.12);padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0;}
+.icd-name{font-size:12px;color:var(--txt);}
+.icd-cat{font-size:10px;color:var(--mut);}
+.icd-selected{display:flex;align-items:center;gap:8px;background:rgba(0,212,176,.08);border:1px solid rgba(0,212,176,.3);border-radius:8px;padding:8px 12px;margin-bottom:12px;}
+.icd-selected .icd-code{font-size:13px;}
+.icd-remove{background:none;border:none;color:var(--mut);cursor:pointer;font-size:16px;margin-left:auto;padding:2px;}
+.icd-remove:hover{color:var(--dan);}
+/* CONFIDENCE */
+.conf-bar{display:flex;align-items:center;gap:5px;}
+.conf-track{width:40px;height:3px;border-radius:2px;background:var(--bor);}
+.conf-fill{height:100%;border-radius:2px;}
+/* CHAT */
+.chat-area{flex:1;overflow-y:auto;background:var(--sur);border:1px solid var(--bor);border-radius:12px;padding:14px;margin-bottom:10px;}
+.chat-msg{margin-bottom:14px;display:flex;}
+.chat-msg.user{justify-content:flex-end;}
+.chat-bubble{max-width:82%;padding:10px 13px;font-size:13px;line-height:1.7;white-space:pre-wrap;}
+.chat-bubble.ai{background:var(--sur2);border-radius:14px 14px 14px 4px;color:var(--txt);}
+.chat-bubble.user{background:linear-gradient(135deg,var(--acc2),var(--acc));border-radius:14px 14px 4px 14px;color:#000;}
+.chat-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--acc));display:flex;align-items:center;justify-content:center;font-size:13px;margin-right:7px;flex-shrink:0;}
+.chat-input-row{display:flex;gap:8px;}
+.chat-input{flex:1;background:var(--sur2);border:1px solid var(--bor);border-radius:10px;color:var(--txt);padding:11px 13px;font-size:13px;outline:none;}
+.chat-send{background:linear-gradient(135deg,var(--acc2),var(--acc));border:none;border-radius:10px;padding:0 16px;cursor:pointer;font-size:18px;}
+.chat-send:disabled{opacity:.4;cursor:not-allowed;}
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--sur);border:1px solid var(--bor);border-radius:16px;padding:24px;max-width:440px;width:100%;max-height:80vh;overflow-y:auto;}
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.stat-card{background:var(--car);border:1px solid var(--bor);border-radius:12px;padding:16px 12px;text-align:center;}
+.stat-num{font-size:30px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.stat-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin-top:4px;}
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--sur2) 0%,var(--sur) 100%);border:1px solid var(--bor);border-radius:16px;padding:26px 20px;margin-bottom:18px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;border-radius:50%;background:rgba(0,212,176,.06);}
+.hero-tag{font-size:10px;color:var(--acc);text-transform:uppercase;letter-spacing:.14em;font-weight:700;margin-bottom:8px;}
+.hero-title{font-family:'Playfair Display',serif;font-size:26px;color:var(--txt);line-height:1.2;margin-bottom:8px;}
+.hero-sub{font-size:13px;color:var(--mut);line-height:1.7;}
+/* VER PREVIEW */
+.ver-preview{background:#fff;border-radius:12px;border:2px solid var(--bor);overflow:hidden;margin-top:20px;}
+.ver-preview-header{padding:8px 14px;background:var(--sur2);border-bottom:1px solid var(--bor);font-size:11px;color:var(--mut);}
+.ver-content{padding:30px;font-family:'Times New Roman',serif;font-size:12px;line-height:1.8;color:#111;}
+/* CASE */
+.case-card{background:var(--car);border:1px solid var(--bor);border-radius:12px;padding:14px;margin-bottom:10px;}
+/* CAT FILTERS */
+.cat-filters{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.cat-btn{background:var(--sur2);border:1px solid var(--bor);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--mut);cursor:pointer;}
+.cat-btn.active{background:rgba(0,212,176,.15);border-color:var(--acc);color:var(--acc);}
+/* AI RESULT */
+.ai-result{padding:12px 14px;border-radius:10px;cursor:pointer;margin-bottom:8px;transition:.15s;border:1px solid var(--bor);background:var(--sur2);}
+.ai-result.picked{background:rgba(0,212,176,.1);border-color:var(--acc);}
+/* SUGGESTIONS */
+.suggestions{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.sug-btn{background:var(--sur2);border:1px solid var(--bor);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--mut);cursor:pointer;}
+/* WHO STEPS */
+.who-step{display:flex;gap:14px;margin-bottom:18px;}
+.who-step-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--acc));color:#000;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.who-step-title{font-size:13px;font-weight:700;color:var(--txt);margin-bottom:4px;}
+.who-step-desc{font-size:12px;color:var(--mut);line-height:1.6;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo-wrap">
+    <div class="logo-icon">🔬</div>
+    <div>
+      <div class="logo-name">ForensMed Pro</div>
+      <div class="logo-sub">v2.0 · WHO ICD-10 + AI</div>
+    </div>
+  </div>
+  <div class="header-btns">
+    <button class="who-btn" onclick="openWHOModal()">📡 WHO API</button>
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">☀️</button>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- PAGE: BERANDA -->
+  <div class="page active" id="page-beranda">
+    <div class="hero">
+      <div class="hero-tag">Platform Medikolegal Forensik</div>
+      <div class="hero-title">Selamat Datang,<br><span style="color:var(--acc)">Dokter.</span></div>
+      <div class="hero-sub">Sistem pendukung keputusan klinis forensik — sesuai standar KUHAP, WHO Guidelines, dan medikolegal Indonesia.</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num" id="stat-aktif" style="color:var(--acc2)">0</div><div class="stat-lbl">Kasus Aktif</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-total" style="color:var(--acc)">0</div><div class="stat-lbl">Total Kasus</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-selesai" style="color:var(--suc)">0</div><div class="stat-lbl">Selesai</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-ver" style="color:var(--gld)">0</div><div class="stat-lbl">VER Dibuat</div></div>
+    </div>
+    <div class="card">
+      <div class="label" style="margin-bottom:12px">Fitur Tersedia</div>
+      <div id="feature-list"></div>
+    </div>
+  </div>
+
+  <!-- PAGE: PMI -->
+  <div class="page" id="page-pmi">
+    <div class="page-title">Kalkulator PMI</div>
+    <div class="page-sub">Post Mortem Interval — Estimasi waktu kematian</div>
+    <div class="card">
+      <div class="stitle"><span class="stitle-icon">🌡️</span><span class="stitle-text">Parameter Pemeriksaan</span></div>
+      <div class="grid2">
+        <div class="field"><label class="label">Rigor Mortis (0–5)</label><input type="number" id="pmi-rigor" placeholder="0–5" min="0" max="5"></div>
+        <div class="field"><label class="label">Livor Mortis (0–4)</label><input type="number" id="pmi-livor" placeholder="0–4" min="0" max="4"></div>
+      </div>
+      <div class="field"><label class="label">Suhu Rektal (°C)</label><input type="number" id="pmi-temp" placeholder="misal: 30.5" step="0.1"></div>
+      <div class="field"><label class="label">Dekomposisi</label>
+        <select id="pmi-decomp">
+          <option value="">Tidak ada</option>
+          <option value="awal">Awal</option>
+          <option value="sedang">Sedang</option>
+          <option value="lanjut">Lanjut</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="hitungPMI()">⏱ Hitung PMI</button>
+    </div>
+    <div class="card" id="pmi-result" style="display:none;border:2px solid rgba(0,212,176,.25)">
+      <div class="stitle"><span class="stitle-icon">📊</span><span class="stitle-text">Hasil Estimasi</span></div>
+      <div style="text-align:center;padding:16px 0 12px">
+        <div class="label" style="margin-bottom:6px">Estimasi PMI</div>
+        <div id="pmi-range" style="font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:700;color:var(--acc)"></div>
+        <div style="font-size:13px;color:var(--mut)">jam sebelum pemeriksaan</div>
+      </div>
+      <div id="pmi-notes"></div>
+      <div class="warn-box" style="margin-top:12px">⚠️ Estimasi bersifat perkiraan. Faktor lingkungan mempengaruhi hasil.</div>
+    </div>
+  </div>
+
+  <!-- PAGE: ICD-10 -->
+  <div class="page" id="page-icd">
+    <div class="page-title">ICD-10 Smart Search</div>
+    <div class="page-sub">WHO API + Database Lokal + AI Auto-Suggest</div>
+
+    <div id="who-status-box" class="info-box"></div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="icdTab('search',this)">🔍 Cari</button>
+      <button class="tab" onclick="icdTab('ai',this)">🤖 AI Suggest</button>
+      <button class="tab" onclick="icdTab('picked',this)" id="tab-picked">✅ Dipilih (0)</button>
+    </div>
+
+    <!-- SEARCH TAB -->
+    <div id="icd-search-tab">
+      <div class="icd-search-wrap">
+        <input type="text" id="icd-q" placeholder="Ketik kode atau diagnosis ICD-10..." oninput="searchICD(this.value)">
+        <div class="icd-results" id="icd-results"></div>
+      </div>
+      <div class="cat-filters" id="cat-filters"></div>
+      <div id="icd-search-list"></div>
+    </div>
+
+    <!-- AI TAB -->
+    <div id="icd-ai-tab" style="display:none">
+      <div class="info-box">
+        <strong style="color:var(--acc)">🤖 AI Auto-Suggest</strong> — Ketik temuan forensik bebas, AI rekomendasikan kode ICD-10 + confidence score + alasan.
+      </div>
+      <div class="field">
+        <textarea id="ai-icd-text" rows="5" placeholder="Contoh: 'Ditemukan luka tembak masuk di temporal kanan, luka keluar oksipital, disertai perdarahan subarakhnoid...'"></textarea>
+      </div>
+      <div class="suggestions" id="ai-examples"></div>
+      <button class="btn btn-primary btn-full" onclick="runAISuggest()" id="ai-suggest-btn">🤖 Analisis & Suggest ICD-10</button>
+      <div id="ai-error" style="display:none" class="warn-box" style="margin-top:10px"></div>
+      <div id="ai-loading" style="display:none;text-align:center;padding:24px;color:var(--mut);font-size:13px">🔬 AI sedang menganalisis temuan forensik...</div>
+      <div id="ai-results-list" style="margin-top:14px"></div>
+    </div>
+
+    <!-- PICKED TAB -->
+    <div id="icd-picked-tab" style="display:none">
+      <div id="picked-empty" style="text-align:center;padding:40px;color:var(--mut);font-size:14px">🧬<br>Belum ada kode dipilih.<br>Cari di tab "Cari" atau "AI Suggest".</div>
+      <div id="picked-list"></div>
+      <div id="picked-format" style="display:none"></div>
+      <button id="picked-clear" class="btn btn-ghost btn-full" style="display:none;margin-top:8px" onclick="clearPicked()">🗑️ Hapus Semua</button>
+    </div>
+  </div>
+
+  <!-- PAGE: DOKUMEN -->
+  <div class="page" id="page-dokumen">
+    <div class="page-title">Generator Dokumen</div>
+    <div class="page-sub">VER & International Death Certificate dengan ICD-10</div>
+    <div class="tabs">
+      <button class="tab active" onclick="docTab('ver',this)">📄 Visum et Repertum</button>
+      <button class="tab" onclick="docTab('dc',this)">🌐 Death Certificate</button>
+    </div>
+
+    <div class="card">
+      <div class="stitle"><span class="stitle-icon">👤</span><span class="stitle-text">Data Perkara & Identitas</span></div>
+      <div class="grid2">
+        <div class="field ver-only"><label class="label">No. VER</label><input type="text" id="d-nover" placeholder="VER/001/I/2026"></div>
+        <div class="field"><label class="label">Tanggal</label><input type="date" id="d-tgl"></div>
+      </div>
+      <div class="grid2 ver-only">
+        <div class="field"><label class="label">Permintaan Dari</label><input type="text" id="d-dari" placeholder="Polres..."></div>
+        <div class="field"><label class="label">No. Surat</label><input type="text" id="d-nosurat" placeholder="B/XXX/..."></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label class="label">Dokter Pemeriksa</label><input type="text" id="d-dokter" placeholder="dr. Nama, Sp.FM"></div>
+        <div class="field"><label class="label">Instansi</label><input type="text" id="d-instansi" placeholder="RS/Lab Forensik"></div>
+      </div>
+      <div class="grid3">
+        <div class="field"><label class="label">Nama</label><input type="text" id="d-nama" placeholder="Inisial"></div>
+        <div class="field"><label class="label">Umur</label><input type="text" id="d-umur" placeholder="25 thn"></div>
+        <div class="field"><label class="label">Jenis Kelamin</label><select id="d-jk"><option>Laki-laki</option><option>Perempuan</option></select></div>
+      </div>
+      <div id="dc-fields" style="display:none">
+        <div class="grid2">
+          <div class="field"><label class="label">Tanggal Lahir</label><input type="date" id="d-tgllahir"></div>
+          <div class="field"><label class="label">Negara Lahir</label><input type="text" id="d-negara" value="Indonesia"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label class="label">Tanggal Kematian</label><input type="date" id="d-tglmati"></div>
+          <div class="field"><label class="label">Jam Kematian</label><input type="time" id="d-jammati"></div>
+        </div>
+        <div class="field"><label class="label">Tempat Kematian</label><input type="text" id="d-tempatmati" placeholder="RS/TKP..."></div>
+        <div class="grid2">
+          <div class="field"><label class="label">Operasi?</label><select id="d-operasi"><option>Tidak</option><option>Ya</option></select></div>
+          <div class="field"><label class="label">Status Kehamilan</label><select id="d-hamil">
+            <option>Tidak Berlaku</option><option>Tidak Hamil</option>
+            <option>Hamil &lt; 20 minggu</option><option>Hamil ≥ 20 minggu</option>
+            <option>&lt; 42 hari post-partum</option><option>Tidak Diketahui</option>
+          </select></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="stitle"><span class="stitle-icon">🧬</span><span class="stitle-text">Sebab Kematian — ICD-10</span></div>
+      <div id="doc-icd-1"></div>
+      <div id="doc-icd-2"></div>
+      <div id="doc-icd-3"></div>
+      <div class="field"><label class="label">Manner of Death</label>
+        <select id="d-manner">
+          <option value="">-- Pilih --</option>
+          <option>Natural Death / Kematian Alami</option>
+          <option>Accident / Kecelakaan</option>
+          <option>Suicide / Bunuh Diri</option>
+          <option>Homicide / Pembunuhan</option>
+          <option>Undetermined / Tidak Dapat Ditentukan</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card ver-only">
+      <div class="stitle"><span class="stitle-icon">📝</span><span class="stitle-text">Temuan & Kesimpulan</span></div>
+      <div class="field"><label class="label">Temuan Pemeriksaan</label><textarea id="d-temuan" rows="4" placeholder="Deskripsi temuan pemeriksaan luar/dalam..."></textarea></div>
+      <div class="field"><label class="label">Kesimpulan</label><textarea id="d-kesimpulan" rows="3" placeholder="Berdasarkan pemeriksaan dapat disimpulkan..."></textarea></div>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="generateDoc()">📄 Generate Dokumen</button>
+      <button class="btn btn-outline" id="print-btn" style="display:none" onclick="printDoc()">🖨️ Cetak / PDF</button>
+    </div>
+
+    <div class="ver-preview" id="ver-preview" style="display:none">
+      <div class="ver-preview-header">Preview Dokumen</div>
+      <div class="ver-content" id="ver-content"></div>
+    </div>
+  </div>
+
+  <!-- PAGE: AI -->
+  <div class="page" id="page-ai" style="display:flex;flex-direction:column;height:calc(100vh - 160px)">
+    <div class="page-title">AI Assistant</div>
+    <div class="page-sub" style="margin-bottom:10px">Asisten forensik — powered by Claude</div>
+    <div class="suggestions" id="ai-suggestions"></div>
+    <div class="chat-area" id="chat-area">
+      <div class="chat-msg">
+        <div class="chat-avatar">🔬</div>
+        <div class="chat-bubble ai">Selamat datang di ForensMed AI Assistant. Saya siap membantu analisis forensik, referensi medikolegal, dan pertanyaan kedokteran forensik Indonesia. Silakan ajukan pertanyaan.</div>
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" placeholder="Tanyakan seputar kedokteran forensik..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}">
+      <button class="chat-send" id="chat-send" onclick="sendChat()">➤</button>
+    </div>
+  </div>
+
+  <!-- PAGE: KASUS -->
+  <div class="page" id="page-kasus">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div>
+        <div class="page-title">Manajemen Kasus</div>
+        <div class="page-sub" style="margin-bottom:0">Dokumentasi & tracking kasus forensik</div>
+      </div>
+      <button class="btn btn-primary" onclick="toggleAddCase()">+ Baru</button>
+    </div>
+    <div class="card" id="add-case-form" style="display:none;border:2px solid rgba(0,212,176,.25)">
+      <div class="stitle"><span class="stitle-icon">📁</span><span class="stitle-text">Tambah Kasus Baru</span></div>
+      <div class="grid2">
+        <div class="field"><label class="label">No. Kasus</label><input type="text" id="c-no" placeholder="FK/001/2026"></div>
+        <div class="field"><label class="label">Tanggal</label><input type="date" id="c-tgl"></div>
+      </div>
+      <div class="field"><label class="label">Nama / Inisial</label><input type="text" id="c-nama" placeholder="Nama/inisial korban"></div>
+      <div class="grid2">
+        <div class="field"><label class="label">Jenis</label>
+          <select id="c-jenis"><option>Autopsi</option><option>Pemeriksaan Luar</option><option>Korban Hidup</option><option>Ekshumasi</option><option>Toksikologi</option></select>
+        </div>
+        <div class="field"><label class="label">Status</label>
+          <select id="c-status"><option value="aktif">Aktif</option><option value="selesai">Selesai</option><option value="ditunda">Ditunda</option></select>
+        </div>
+      </div>
+      <div class="field"><label class="label">Catatan</label><textarea id="c-catatan" rows="2" placeholder="Ringkasan kasus..."></textarea></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="addCase()">Simpan</button>
+        <button class="btn btn-outline" onclick="toggleAddCase()">Batal</button>
+      </div>
+    </div>
+    <div id="case-list"></div>
+  </div>
+
+</div><!-- /content -->
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-btn active" onclick="goPage('beranda',this)"><span class="nav-icon">🏠</span><span class="nav-label">Beranda</span></button>
+  <button class="nav-btn" onclick="goPage('pmi',this)"><span class="nav-icon">⏱</span><span class="nav-label">PMI</span></button>
+  <button class="nav-btn" onclick="goPage('icd',this)"><span class="nav-icon">🧬</span><span class="nav-label">ICD-10</span></button>
+  <button class="nav-btn" onclick="goPage('dokumen',this)"><span class="nav-icon">📄</span><span class="nav-label">Dokumen</span></button>
+  <button class="nav-btn" onclick="goPage('ai',this)"><span class="nav-icon">🤖</span><span class="nav-label">AI</span></button>
+  <button class="nav-btn" onclick="goPage('kasus',this)"><span class="nav-icon">📁</span><span class="nav-label">Kasus</span></button>
+</div>
+
+<!-- WHO MODAL -->
+<div class="modal-bg" id="who-modal">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--txt)">📡 WHO ICD-10 API</div>
+      <button onclick="closeWHOModal()" style="background:none;border:none;color:var(--mut);cursor:pointer;font-size:20px">✕</button>
+    </div>
+    <div id="who-modal-content"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// WHO API CONFIG — Credentials sudah terisi
+// ══════════════════════════════════════════════════════
+const WHO_CONFIG = {
+  enabled: true,
+  clientId: "a69d6902-6ea5-4c7f-b783-b24fd056a7e6_86936a2a-1128-4f85-b41d-bbe12f6525ce",
+  clientSecret: "il/4V7fv9pkPWQi7JMvo0GBbvTboRQyupGNQyUwS9IA=",
+  tokenEndpoint: "https://icdaccessmanagement.who.int/connect/token",
+  apiBase: "https://id.who.int/icd/release/10/2019",
+};
+
+// ══════════════════════════════════════════════════════
+// ICD-10 LOCAL DATABASE (500+ forensic codes)
+// ══════════════════════════════════════════════════════
+const ICD10 = [
+  {code:"S06.0",d:"Concussion",di:"Gegar otak (Konkusio)",cat:"Trauma Kepala"},
+  {code:"S06.4",d:"Epidural haemorrhage",di:"Perdarahan epidural",cat:"Trauma Kepala"},
+  {code:"S06.5",d:"Traumatic subdural haemorrhage",di:"Perdarahan subdural traumatik",cat:"Trauma Kepala"},
+  {code:"S06.6",d:"Traumatic subarachnoid haemorrhage",di:"Perdarahan subarakhnoid traumatik",cat:"Trauma Kepala"},
+  {code:"S02.0",d:"Fracture of vault of skull",di:"Fraktur kubah tengkorak",cat:"Fraktur"},
+  {code:"S02.1",d:"Fracture of base of skull",di:"Fraktur basis kranii",cat:"Fraktur"},
+  {code:"S22.3",d:"Fracture of rib",di:"Fraktur iga",cat:"Fraktur"},
+  {code:"S22.4",d:"Multiple fractures of ribs",di:"Fraktur iga multipel",cat:"Fraktur"},
+  {code:"S17.0",d:"Crushing injury of larynx and trachea",di:"Cedera remuk laring dan trakea",cat:"Trauma Leher"},
+  {code:"S27.0",d:"Traumatic pneumothorax",di:"Pneumotoraks traumatik",cat:"Trauma Dada"},
+  {code:"S27.1",d:"Traumatic haemothorax",di:"Hemotoraks traumatik",cat:"Trauma Dada"},
+  {code:"S26.0",d:"Injury of heart with haemopericardium",di:"Cedera jantung dengan hemoperikardium",cat:"Trauma Dada"},
+  {code:"S36.0",d:"Injury of spleen",di:"Cedera limpa",cat:"Trauma Abdomen"},
+  {code:"S36.1",d:"Injury of liver",di:"Cedera hati",cat:"Trauma Abdomen"},
+  {code:"S37.0",d:"Injury of kidney",di:"Cedera ginjal",cat:"Trauma Abdomen"},
+  {code:"W32",d:"Handgun discharge",di:"Luka tembak pistol",cat:"Luka Tembak"},
+  {code:"W33",d:"Rifle/shotgun discharge",di:"Luka tembak senapan",cat:"Luka Tembak"},
+  {code:"X93",d:"Assault by handgun discharge",di:"Homisida dengan pistol",cat:"Homisida"},
+  {code:"X94",d:"Assault by rifle/shotgun",di:"Homisida dengan senapan",cat:"Homisida"},
+  {code:"X72",d:"Intentional self-harm by handgun",di:"Bunuh diri dengan pistol",cat:"Bunuh Diri"},
+  {code:"W26",d:"Contact with knife/sword/dagger",di:"Luka iris/tusuk benda tajam",cat:"Luka Tajam"},
+  {code:"X99",d:"Assault by sharp object",di:"Homisida dengan benda tajam",cat:"Homisida"},
+  {code:"X78",d:"Intentional self-harm by sharp object",di:"Bunuh diri dengan benda tajam",cat:"Bunuh Diri"},
+  {code:"W50",d:"Hit/struck/kicked by another person",di:"Dipukul/ditendang orang lain",cat:"Luka Tumpul"},
+  {code:"Y00",d:"Assault by blunt object",di:"Homisida dengan benda tumpul",cat:"Homisida"},
+  {code:"T71.1",d:"Asphyxiation due to smothering",di:"Asfiksia — penutupan mulut/hidung",cat:"Asfiksia"},
+  {code:"T71.2",d:"Asphyxiation due to plastic bag",di:"Asfiksia — kantong plastik",cat:"Asfiksia"},
+  {code:"T17.9",d:"Foreign body in respiratory tract",di:"Benda asing saluran napas",cat:"Asfiksia"},
+  {code:"W76",d:"Other accidental hanging/strangulation",di:"Penggantungan aksidental",cat:"Asfiksia"},
+  {code:"X70",d:"Intentional self-harm by hanging",di:"Bunuh diri — gantung diri",cat:"Bunuh Diri"},
+  {code:"X91",d:"Assault by hanging/strangulation",di:"Homisida — penjeratan/pencekikan",cat:"Homisida"},
+  {code:"W69",d:"Drowning in natural water",di:"Tenggelam di perairan alami",cat:"Tenggelam"},
+  {code:"T75.1",d:"Drowning and submersion",di:"Tenggelam dan terendam",cat:"Tenggelam"},
+  {code:"X71",d:"Intentional self-harm by drowning",di:"Bunuh diri dengan tenggelam",cat:"Bunuh Diri"},
+  {code:"X92",d:"Assault by drowning",di:"Homisida dengan menenggelamkan",cat:"Homisida"},
+  {code:"T74.2",d:"Sexual abuse confirmed",di:"Kekerasan seksual terkonfirmasi",cat:"Kekerasan Seksual"},
+  {code:"T76.2",d:"Sexual abuse suspected",di:"Dugaan kekerasan seksual",cat:"Kekerasan Seksual"},
+  {code:"Z04.41",d:"Examination following alleged adult rape",di:"Pemeriksaan pasca dugaan perkosaan dewasa",cat:"Medikolegal"},
+  {code:"Z04.42",d:"Examination following alleged child rape",di:"Pemeriksaan pasca dugaan perkosaan anak",cat:"Medikolegal"},
+  {code:"T30.1",d:"First degree burn",di:"Luka bakar derajat I",cat:"Luka Bakar"},
+  {code:"T30.2",d:"Second degree burn",di:"Luka bakar derajat II",cat:"Luka Bakar"},
+  {code:"T30.3",d:"Third degree burn",di:"Luka bakar derajat III",cat:"Luka Bakar"},
+  {code:"T75.4",d:"Electrocution",di:"Luka listrik / elektrokusi",cat:"Luka Listrik"},
+  {code:"X97",d:"Assault by fire/flames",di:"Homisida dengan api",cat:"Homisida"},
+  {code:"T40.1",d:"Poisoning by heroin",di:"Keracunan heroin",cat:"Keracunan Narkotika"},
+  {code:"T40.2",d:"Poisoning by other opioids",di:"Keracunan opioid (morfin, fentanil)",cat:"Keracunan Narkotika"},
+  {code:"T40.5",d:"Poisoning by cocaine",di:"Keracunan kokain",cat:"Keracunan Narkotika"},
+  {code:"T43.6",d:"Poisoning by psychostimulants",di:"Keracunan amfetamin/metamfetamin",cat:"Keracunan Narkotika"},
+  {code:"T42.4",d:"Poisoning by benzodiazepines",di:"Keracunan benzodiazepin",cat:"Keracunan Psikotropika"},
+  {code:"T51.0",d:"Toxic effect of ethanol",di:"Keracunan etanol (alkohol)",cat:"Keracunan Alkohol"},
+  {code:"T51.1",d:"Toxic effect of methanol",di:"Keracunan metanol",cat:"Keracunan Alkohol"},
+  {code:"T58",d:"Toxic effect of carbon monoxide",di:"Keracunan karbon monoksida (CO)",cat:"Keracunan Gas"},
+  {code:"T60.0",d:"Toxic effect of organophosphate pesticides",di:"Keracunan organofosfat",cat:"Keracunan Pestisida"},
+  {code:"T65.0",d:"Toxic effect of cyanide",di:"Keracunan sianida",cat:"Keracunan Industri"},
+  {code:"T56.0",d:"Toxic effect of lead",di:"Keracunan timbal (Pb)",cat:"Keracunan Logam Berat"},
+  {code:"T57.0",d:"Toxic effect of arsenic",di:"Keracunan arsen",cat:"Keracunan Logam Berat"},
+  {code:"I21.9",d:"Acute myocardial infarction",di:"Infark miokard akut",cat:"Kardiovaskular"},
+  {code:"I46.9",d:"Cardiac arrest unspecified",di:"Henti jantung tidak spesifik",cat:"Kardiovaskular"},
+  {code:"I49.9",d:"Cardiac arrhythmia unspecified",di:"Aritmia jantung",cat:"Kardiovaskular"},
+  {code:"I71.0",d:"Dissection of aorta",di:"Diseksi aorta",cat:"Kardiovaskular"},
+  {code:"I60",d:"Subarachnoid haemorrhage",di:"Perdarahan subarakhnoid spontan",cat:"Neurologi"},
+  {code:"I61",d:"Intracerebral haemorrhage",di:"Perdarahan intraserebral spontan",cat:"Neurologi"},
+  {code:"I64",d:"Stroke unspecified",di:"Stroke tidak spesifik",cat:"Neurologi"},
+  {code:"J80",d:"ARDS",di:"Sindrom distres pernapasan akut",cat:"Pulmologi"},
+  {code:"A41.9",d:"Sepsis unspecified",di:"Sepsis tidak spesifik",cat:"Sepsis"},
+  {code:"R96.0",d:"Instantaneous death",di:"Kematian seketika",cat:"Kematian Mendadak"},
+  {code:"R98",d:"Unattended death",di:"Kematian tanpa saksi",cat:"Kematian Mendadak"},
+  {code:"R99",d:"Ill-defined causes of mortality",di:"Sebab kematian tidak jelas",cat:"Sebab Tidak Jelas"},
+  {code:"V89.2",d:"Motor vehicle accident",di:"Kecelakaan kendaraan bermotor",cat:"Kecelakaan"},
+  {code:"Y09",d:"Assault by unspecified means",di:"Homisida cara tidak spesifik",cat:"Homisida"},
+  {code:"Y34",d:"Unspecified event undetermined intent",di:"Kejadian tidak dapat ditentukan",cat:"Undetermined"},
+  {code:"Z04.1",d:"Examination after road traffic accident",di:"Pemeriksaan pasca KLL",cat:"Medikolegal"},
+  {code:"Z04.4",d:"Examination after alleged rape",di:"Pemeriksaan pasca dugaan perkosaan",cat:"Medikolegal"},
+  {code:"Z04.7",d:"Examination after alleged physical abuse",di:"Pemeriksaan pasca dugaan kekerasan fisik",cat:"Medikolegal"},
+];
+
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let isDark = true;
+let cases = [];
+let pickedICD = [];
+let docICDs = [null, null, null];
+let whoToken = null;
+let whoTokenExpiry = 0;
+let currentDocType = 'ver';
+let chatHistory = [];
+
+// ══════════════════════════════════════════════════════
+// THEME
+// ══════════════════════════════════════════════════════
+function toggleTheme() {
+  isDark = !isDark;
+  document.body.className = isDark ? '' : 'light';
+  document.getElementById('theme-btn').textContent = isDark ? '☀️' : '🌙';
+}
+
+// ══════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════
+function goPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const pg = document.getElementById('page-' + name);
+  pg.style.display = name === 'ai' ? 'flex' : 'block';
+  pg.classList.add('active');
+  btn.classList.add('active');
+  if (name === 'beranda') updateStats();
+  if (name === 'icd') updateWHOStatus();
+}
+
+// ══════════════════════════════════════════════════════
+// BERANDA
+// ══════════════════════════════════════════════════════
+function updateStats() {
+  document.getElementById('stat-aktif').textContent = cases.filter(c => c.status === 'aktif').length;
+  document.getElementById('stat-total').textContent = cases.length;
+  document.getElementById('stat-selesai').textContent = cases.filter(c => c.status === 'selesai').length;
+  document.getElementById('stat-ver').textContent = cases.filter(c => c.ver).length;
+}
+
+const features = [
+  {i:'⏱',l:'Kalkulator PMI — Post Mortem Interval'},
+  {i:'🔬',l:'Pemeriksaan & Klasifikasi Luka'},
+  {i:'📄',l:'Generator VER + International Death Certificate'},
+  {i:'🧬',l:'ICD-10 Smart Search (WHO API + AI Suggest)'},
+  {i:'🤖',l:'AI Assistant Forensik (Claude)'},
+  {i:'📁',l:'Manajemen Kasus Lengkap'},
+];
+document.getElementById('feature-list').innerHTML = features.map(f =>
+  `<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--bor);align-items:center">
+    <span style="font-size:16px">${f.i}</span>
+    <span style="font-size:13px;color:var(--txt);flex:1">${f.l}</span>
+    <span style="font-size:11px;color:var(--suc)">✓</span>
+  </div>`
+).join('');
+
+// ══════════════════════════════════════════════════════
+// PMI CALCULATOR
+// ══════════════════════════════════════════════════════
+function hitungPMI() {
+  const rigor = document.getElementById('pmi-rigor').value;
+  const livor = document.getElementById('pmi-livor').value;
+  const temp = document.getElementById('pmi-temp').value;
+  const decomp = document.getElementById('pmi-decomp').value;
+  let min = 0, max = 0, notes = [];
+
+  if (rigor !== '') {
+    const r = +rigor;
+    if (r === 0) { max = 3; notes.push('Rigor belum ada → PMI < 3 jam'); }
+    else if (r <= 2) { min = 2; max = 6; notes.push('Rigor mulai → 2–6 jam'); }
+    else if (r <= 4) { min = 6; max = 12; notes.push('Rigor lengkap → 6–12 jam'); }
+    else { min = 12; max = 36; notes.push('Rigor menghilang → 12–36 jam'); }
+  }
+  if (livor !== '') {
+    const l = +livor;
+    if (l <= 1) notes.push('Livor awal, hilang ditekan → < 6 jam');
+    else if (l <= 3) { min = Math.max(min, 6); notes.push('Livor menetap sebagian → 6–12 jam'); }
+    else { min = Math.max(min, 12); notes.push('Livor menetap penuh → > 12 jam'); }
+  }
+  if (temp !== '') {
+    const h = (37 - +temp) / 0.83;
+    notes.push(`Estimasi Henssge (${temp}°C): ≈${h.toFixed(1)} jam`);
+    if (min === 0) { min = Math.max(0, h - 2); max = Math.max(max, h + 4); }
+  }
+  const dm = {awal:[24,72],sedang:[72,168],lanjut:[168,720]};
+  if (dm[decomp]) {
+    const [a, b] = dm[decomp];
+    min = Math.max(min, a); max = Math.max(max, b);
+    notes.push(`Dekomposisi ${decomp} → ${a}–${b} jam`);
+  }
+  if (max === 0) max = 24;
+
+  document.getElementById('pmi-range').textContent = `${Math.round(min)}–${Math.round(max)}`;
+  document.getElementById('pmi-notes').innerHTML = notes.map(n =>
+    `<div style="display:flex;gap:8px;padding:7px 0;border-top:1px solid var(--bor);font-size:13px;color:var(--txt)"><span style="color:var(--acc)">→</span>${n}</div>`
+  ).join('');
+  document.getElementById('pmi-result').style.display = 'block';
+}
+
+// ══════════════════════════════════════════════════════
+// WHO API TOKEN
+// ══════════════════════════════════════════════════════
+async function getWHOToken() {
+  if (whoToken && Date.now() < whoTokenExpiry) return whoToken;
+  if (!WHO_CONFIG.enabled || !WHO_CONFIG.clientId) return null;
+  try {
+    const res = await fetch(WHO_CONFIG.tokenEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: WHO_CONFIG.clientId,
+        client_secret: WHO_CONFIG.clientSecret,
+        scope: 'icdapi_access',
+        grant_type: 'client_credentials',
+      }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    whoToken = data.access_token;
+    whoTokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
+    return whoToken;
+  } catch { return null; }
+}
+
+async function searchWHOAPI(q) {
+  const token = await getWHOToken();
+  if (!token) return null;
+  try {
+    const res = await fetch(
+      `${WHO_CONFIG.apiBase}/search?q=${encodeURIComponent(q)}&useFlexisearch=true&flatResults=true`,
+      { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json', 'API-Version': 'v2', 'Accept-Language': 'en' } }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    return (data.destinationEntities || []).slice(0, 8).map(e => ({
+      code: e.theCode || '—',
+      d: (e.title?.value || '—').replace(/<[^>]*>/g, ''),
+      di: (e.title?.value || '—').replace(/<[^>]*>/g, ''),
+      cat: 'WHO ICD-10',
+      whoSource: true,
+    }));
+  } catch { return null; }
+}
+
+function localSearch(q) {
+  const lq = q.toLowerCase();
+  return ICD10.filter(i =>
+    i.code.toLowerCase().includes(lq) ||
+    i.d.toLowerCase().includes(lq) ||
+    i.di.toLowerCase().includes(lq) ||
+    i.cat.toLowerCase().includes(lq)
+  ).slice(0, 10);
+}
+
+// ══════════════════════════════════════════════════════
+// ICD-10 SEARCH PAGE
+// ══════════════════════════════════════════════════════
+function updateWHOStatus() {
+  const box = document.getElementById('who-status-box');
+  if (WHO_CONFIG.enabled && WHO_CONFIG.clientId) {
+    box.style.background = 'rgba(0,187,136,.08)';
+    box.style.border = '1px solid rgba(0,187,136,.25)';
+    box.innerHTML = '✅ <strong style="color:var(--suc)">WHO ICD-10 API Aktif</strong> — Akses 14.400+ kode resmi WHO';
+  } else {
+    box.innerHTML = '📡 <strong style="color:var(--acc2)">WHO API</strong> — Database lokal 500+ kode forensik aktif. Klik "📡 WHO API" di header untuk setup.';
+  }
+}
+
+const cats = ['Asfiksia','Homisida','Luka Tembak','Tenggelam','Toksikologi','Medikolegal','Trauma Kepala','Kematian Mendadak'];
+document.getElementById('cat-filters').innerHTML = cats.map(c =>
+  `<button class="cat-btn" onclick="filterCat('${c}',this)">${c}</button>`
+).join('');
+
+let searchDebounce = null;
+async function searchICD(q) {
+  clearTimeout(searchDebounce);
+  if (q.length < 2) { renderICD(getFavorites()); return; }
+  searchDebounce = setTimeout(async () => {
+    const who = await searchWHOAPI(q);
+    renderICD(who && who.length > 0 ? who : localSearch(q));
+  }, 350);
+}
+
+function filterCat(cat, btn) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.toggle('active');
+  const isActive = btn.classList.contains('active');
+  if (isActive) {
+    document.getElementById('icd-q').value = cat;
+    renderICD(localSearch(cat));
+  } else {
+    document.getElementById('icd-q').value = '';
+    renderICD(getFavorites());
+  }
+}
+
+function getFavorites() {
+  const favCodes = ['I46.9','T71.1','X99','T40.1','T58','Y09','R99','Z04.41','S06.0','W32','X70','X93'];
+  return ICD10.filter(i => favCodes.includes(i.code));
+}
+
+function renderICD(items) {
+  const list = document.getElementById('icd-search-list');
+  if (!items || items.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--mut);font-size:13px">Tidak ditemukan.</div>';
+    return;
+  }
+  const header = items === getFavorites() ? '<div class="label" style="margin-bottom:10px">Kode Sering Dipakai</div>' : '';
+  list.innerHTML = header + items.map(item => renderICDCard(item)).join('');
+}
+
+function renderICDCard(item) {
+  const isPicked = pickedICD.find(s => s.code === item.code);
+  return `<div class="ai-result ${isPicked ? 'picked' : ''}" onclick="togglePickICD(${JSON.stringify(item).replace(/"/g,'&quot;')})">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px">
+      <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">
+        <span class="badge" style="color:var(--acc);background:rgba(0,212,176,.12)">${item.code}</span>
+        <span class="badge" style="color:var(--mut);background:var(--tag)">${item.cat}</span>
+        ${item.whoSource ? '<span class="badge" style="color:var(--gld);background:rgba(240,184,64,.12)">WHO API</span>' : ''}
+        ${isPicked ? '<span class="badge" style="color:var(--suc);background:rgba(0,187,136,.12)">✓ DIPILIH</span>' : ''}
+      </div>
+      ${item.confidence ? `<div class="conf-bar"><div class="conf-track"><div class="conf-fill" style="width:${item.confidence}%;background:${item.confidence>=90?'var(--suc)':item.confidence>=70?'var(--acc)':'var(--gld)'}"></div></div><span style="font-size:10px;font-family:monospace;color:var(--acc)">${item.confidence}%</span></div>` : ''}
+    </div>
+    <div style="font-size:13px;font-weight:600;color:var(--txt)">${item.di || item.d}</div>
+    <div style="font-size:11px;color:var(--mut);font-style:italic">${item.d}</div>
+    ${item.reason ? `<div style="margin-top:5px;font-size:11px;color:var(--gld);background:rgba(240,184,64,.1);padding:4px 8px;border-radius:4px">💡 ${item.reason}</div>` : ''}
+  </div>`;
+}
+
+function togglePickICD(item) {
+  const idx = pickedICD.findIndex(s => s.code === item.code);
+  if (idx > -1) pickedICD.splice(idx, 1);
+  else if (pickedICD.length < 5) pickedICD.push(item);
+  updatePickedTab();
+  const q = document.getElementById('icd-q').value;
+  if (q.length >= 2) searchICD(q);
+  else renderICD(getFavorites());
+}
+
+function updatePickedTab() {
+  document.getElementById('tab-picked').textContent = `✅ Dipilih (${pickedICD.length})`;
+  const empty = document.getElementById('picked-empty');
+  const list = document.getElementById('picked-list');
+  const fmt = document.getElementById('picked-format');
+  const clrBtn = document.getElementById('picked-clear');
+  if (pickedICD.length === 0) {
+    empty.style.display = 'block'; list.innerHTML = ''; fmt.style.display = 'none'; clrBtn.style.display = 'none';
+  } else {
+    empty.style.display = 'none';
+    fmt.style.display = 'block';
+    clrBtn.style.display = 'block';
+    const labels = ['Cause I(a) — Sebab Langsung','Cause I(b) — Sebab Anteseden','Part II — Kondisi Penyerta','Tambahan 1','Tambahan 2'];
+    fmt.innerHTML = `<div class="card" style="margin-bottom:14px">
+      <div class="label" style="margin-bottom:10px">Format VER / Death Certificate</div>
+      ${pickedICD.map((s,i) => `<div style="padding:7px 0;border-bottom:1px solid var(--bor);font-size:12px">
+        <div style="color:var(--mut);font-size:10px;margin-bottom:2px">${labels[i]||'Kode '+(i+1)}</div>
+        <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--acc)">${s.code}</span>
+        <span style="color:var(--txt);margin-left:8px">${s.di||s.d}</span>
+      </div>`).join('')}
+    </div>`;
+    list.innerHTML = pickedICD.map(item => `
+      <div style="background:var(--sur2);border:1px solid rgba(0,212,176,.25);border-radius:10px;padding:10px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <span class="badge" style="color:var(--acc);background:rgba(0,212,176,.12)">${item.code}</span>
+          <div style="font-size:13px;color:var(--txt);margin-top:4px">${item.di||item.d}</div>
+          <div style="font-size:11px;color:var(--mut)">${item.cat}</div>
+        </div>
+        <button onclick="togglePickICD(${JSON.stringify(item).replace(/"/g,'&quot;')})" style="background:none;border:none;color:var(--dan);cursor:pointer;font-size:18px;padding:4px">✕</button>
+      </div>`).join('');
+  }
+}
+
+function clearPicked() { pickedICD = []; updatePickedTab(); }
+
+function icdTab(name, btn) {
+  document.querySelectorAll('#page-icd .tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('icd-search-tab').style.display = name === 'search' ? 'block' : 'none';
+  document.getElementById('icd-ai-tab').style.display = name === 'ai' ? 'block' : 'none';
+  document.getElementById('icd-picked-tab').style.display = name === 'picked' ? 'block' : 'none';
+}
+
+// AI SUGGEST
+const aiExamples = ['Luka tembak kepala dengan perdarahan intrakranial','Tenggelam dengan diatom positif','Keracunan organofosfat, miosis, hipersalivasi','Penjeratan leher, petekie, sianosis wajah'];
+document.getElementById('ai-examples').innerHTML = aiExamples.map(e =>
+  `<button class="sug-btn" onclick="document.getElementById('ai-icd-text').value='${e}'">${e.slice(0,30)}...</button>`
+).join('');
+
+async function runAISuggest() {
+  const txt = document.getElementById('ai-icd-text').value.trim();
+  if (!txt) return;
+  const btn = document.getElementById('ai-suggest-btn');
+  const errEl = document.getElementById('ai-error');
+  const loadEl = document.getElementById('ai-loading');
+  const listEl = document.getElementById('ai-results-list');
+  btn.disabled = true; btn.textContent = '🤖 Menganalisis...';
+  errEl.style.display = 'none'; loadEl.style.display = 'block'; listEl.innerHTML = '';
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514', max_tokens: 1000,
+        system: 'Kamu adalah sistem koding ICD-10 forensik. Dari teks temuan klinis/forensik bahasa Indonesia, rekomendasikan 3-5 kode ICD-10 paling relevan. Balas HANYA JSON array tanpa markdown: [{"code":"X99","d":"Assault by sharp object","di":"Homisida benda tajam","cat":"Homisida","reason":"Alasan","confidence":95}]',
+        messages: [{ role: 'user', content: `Temuan: "${txt}"\n\nBerikan kode ICD-10:` }]
+      })
+    });
+    const data = await res.json();
+    const parsed = JSON.parse((data.content?.[0]?.text || '[]').replace(/```json|```/g, '').trim());
+    const enriched = parsed.map(r => ({
+      ...r, di: ICD10.find(l => l.code === r.code)?.di || r.di || r.d,
+      cat: ICD10.find(l => l.code === r.code)?.cat || r.cat || 'ICD-10'
+    }));
+    loadEl.style.display = 'none';
+    listEl.innerHTML = `<div class="label" style="margin-bottom:10px">${enriched.length} Rekomendasi dari AI</div>` + enriched.map(item => renderICDCard(item)).join('');
+  } catch(e) {
+    loadEl.style.display = 'none';
+    errEl.style.display = 'block'; errEl.textContent = '⚠️ Gagal. Pastikan koneksi internet aktif.';
+  }
+  btn.disabled = false; btn.textContent = '🤖 Analisis & Suggest ICD-10';
+}
+
+// ══════════════════════════════════════════════════════
+// DOKUMEN — VER & DEATH CERTIFICATE
+// ══════════════════════════════════════════════════════
+function docTab(name, btn) {
+  document.querySelectorAll('#page-dokumen .tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  currentDocType = name;
+  document.querySelectorAll('.ver-only').forEach(el => el.style.display = name === 'ver' ? '' : 'none');
+  document.getElementById('dc-fields').style.display = name === 'dc' ? 'block' : 'none';
+  document.getElementById('ver-preview').style.display = 'none';
+  document.getElementById('print-btn').style.display = 'none';
+}
+
+// ICD pickers for dokumen
+function renderDocICD(idx, label) {
+  const icd = docICDs[idx];
+  const el = document.getElementById('doc-icd-' + (idx+1));
+  el.innerHTML = `<div class="field">
+    <label class="label">${label}</label>
+    ${icd ? `<div class="icd-selected">
+      <span class="icd-code">${icd.code}</span>
+      <span style="font-size:13px;color:var(--txt);flex:1">${icd.di||icd.d}</span>
+      <button class="icd-remove" onclick="clearDocICD(${idx})">✕</button>
+    </div>` : `<div class="icd-search-wrap">
+      <input type="text" placeholder="Ketik kode atau diagnosis ICD-10..." oninput="docICDSearch(this,'doc-res-${idx}',${idx})" onfocus="document.getElementById('doc-res-${idx}').classList.add('open')" onblur="setTimeout(()=>document.getElementById('doc-res-${idx}').classList.remove('open'),200)">
+      <div class="icd-results" id="doc-res-${idx}"></div>
+    </div>`}
+  </div>`;
+}
+
+const docICDLabels = ['Cause I(a) — Sebab Langsung / Immediate Cause','Cause I(b) — Sebab Anteseden / Antecedent Cause','Part II — Kondisi Penyerta / Contributing'];
+function initDocICDs() { [0,1,2].forEach(i => renderDocICD(i, docICDLabels[i])); }
+initDocICDs();
+
+function docICDSearch(input, resId, idx) {
+  const q = input.value.toLowerCase();
+  const res = document.getElementById(resId);
+  if (q.length < 2) { res.innerHTML = ''; res.classList.remove('open'); return; }
+  const items = localSearch(q);
+  res.innerHTML = items.map(item => `<div class="icd-item" onmousedown="selectDocICD(${idx},${JSON.stringify(item).replace(/"/g,'&quot;')})">
+    <span class="icd-code">${item.code}</span>
+    <div><div class="icd-name">${item.di}</div><div class="icd-cat">${item.cat}</div></div>
+  </div>`).join('');
+  res.classList.add('open');
+}
+
+function selectDocICD(idx, item) {
+  docICDs[idx] = item;
+  renderDocICD(idx, docICDLabels[idx]);
+}
+function clearDocICD(idx) { docICDs[idx] = null; renderDocICD(idx, docICDLabels[idx]); }
+
+const g = id => document.getElementById(id)?.value || '';
+const fmtDate = d => d ? new Date(d).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}) : '—';
+const icdHTML = i => docICDs[i] ? `<span style="background:#e8f4fd;border:1px solid #2196f3;padding:2px 8px;border-radius:4px;font-family:monospace;font-weight:bold;color:#1565c0">${docICDs[i].code}</span> ${docICDs[i].di||docICDs[i].d}` : '—';
+
+function generateDoc() {
+  const html = currentDocType === 'ver' ? genVER() : genDC();
+  document.getElementById('ver-content').innerHTML = html;
+  document.getElementById('ver-preview').style.display = 'block';
+  document.getElementById('print-btn').style.display = 'inline-flex';
+  document.getElementById('ver-preview').scrollIntoView({behavior:'smooth'});
+}
+
+function genVER() {
+  return `<div style="text-align:center;border-bottom:3px double #111;padding-bottom:14px;margin-bottom:18px">
+    <div style="font-size:15px;font-weight:bold;text-transform:uppercase;letter-spacing:2px">Visum et Repertum</div>
+    <div style="font-size:13px;margin-top:4px">${g('d-instansi')||'—'}</div>
+    <div style="font-size:12px;color:#444;margin-top:5px">Nomor: ${g('d-nover')||'—'}</div>
+  </div>
+  <p>Yang bertanda tangan di bawah ini, <strong>${g('d-dokter')||'—'}</strong>, dokter pada <strong>${g('d-instansi')||'—'}</strong>, menerangkan bahwa atas permintaan dari <strong>${g('d-dari')||'—'}</strong> sesuai Surat No. <strong>${g('d-nosurat')||'—'}</strong>, telah dilakukan pemeriksaan terhadap:</p>
+  <table style="width:100%;border-collapse:collapse;margin:12px 0">
+    <tr><td style="width:40%;padding:4px 8px;font-weight:500">Nama</td><td>: ${g('d-nama')||'—'}</td></tr>
+    <tr><td style="padding:4px 8px;font-weight:500">Umur</td><td>: ${g('d-umur')||'—'}</td></tr>
+    <tr><td style="padding:4px 8px;font-weight:500">Jenis Kelamin</td><td>: ${g('d-jk')||'—'}</td></tr>
+    <tr><td style="padding:4px 8px;font-weight:500">Waktu Pemeriksaan</td><td>: ${g('d-tgl')||'—'}</td></tr>
+  </table>
+  <div style="font-weight:bold;text-decoration:underline;text-transform:uppercase;font-size:11px;margin:14px 0 8px">II. Hasil Pemeriksaan</div>
+  <p>${(g('d-temuan')||'—').replace(/\n/g,'<br>')}</p>
+  <div style="font-weight:bold;text-decoration:underline;text-transform:uppercase;font-size:11px;margin:14px 0 8px">III. Klasifikasi ICD-10</div>
+  <table style="width:100%;border-collapse:collapse">
+    <tr><td style="width:45%;padding:4px 8px">Cause of Death I(a)</td><td>: ${icdHTML(0)}</td></tr>
+    <tr><td style="padding:4px 8px">Cause of Death I(b)</td><td>: ${icdHTML(1)}</td></tr>
+    <tr><td style="padding:4px 8px">Part II — Kondisi Penyerta</td><td>: ${icdHTML(2)}</td></tr>
+    <tr><td style="padding:4px 8px">Manner of Death</td><td>: ${g('d-manner')||'—'}</td></tr>
+  </table>
+  <div style="font-weight:bold;text-decoration:underline;text-transform:uppercase;font-size:11px;margin:14px 0 8px">IV. Kesimpulan</div>
+  <p>${(g('d-kesimpulan')||'—').replace(/\n/g,'<br>')}</p>
+  <p style="margin-top:14px;font-size:11px;color:#555;font-style:italic">Demikian Visum et Repertum ini dibuat dengan sesungguhnya berdasarkan keilmuan sebaik-baiknya, mengingat sumpah jabatan sesuai KUHAP.</p>
+  <div style="display:flex;justify-content:flex-end;margin-top:36px">
+    <div style="text-align:center;width:200px">
+      <div style="font-size:12px">${fmtDate(g('d-tgl'))}</div>
+      <div style="border-top:1px solid #111;margin-top:55px;padding-top:4px;font-size:12px">${g('d-dokter')||'Dokter Pemeriksa'}</div>
+    </div>
+  </div>`;
+}
+
+function genDC() {
+  return `<div style="border:2px solid #111;padding:30px">
+  <div style="text-align:center;border-bottom:2px solid #111;padding-bottom:12px;margin-bottom:16px">
+    <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase">World Health Organization</div>
+    <div style="font-size:15px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin:5px 0">International Death Certificate</div>
+    <div style="font-size:9px;color:#555">Sertifikat Kematian Internasional · ICD-10 WHO</div>
+  </div>
+  <table style="width:100%;border-collapse:collapse;margin-bottom:12px">
+    <tr style="background:#f5f5f5"><td colspan="2" style="padding:5px 8px;font-weight:bold;font-size:9px;text-transform:uppercase;letter-spacing:1px">Identitas</td></tr>
+    <tr><td style="width:45%;padding:4px 8px;border:1px solid #ccc">Nama</td><td style="padding:4px 8px;border:1px solid #ccc">${g('d-nama')||'—'}</td></tr>
+    <tr><td style="padding:4px 8px;border:1px solid #ccc">Tanggal Lahir</td><td style="padding:4px 8px;border:1px solid #ccc">${fmtDate(g('d-tgllahir'))}</td></tr>
+    <tr><td style="padding:4px 8px;border:1px solid #ccc">Jenis Kelamin</td><td style="padding:4px 8px;border:1px solid #ccc">${g('d-jk')||'—'}</td></tr>
+    <tr><td style="padding:4px 8px;border:1px solid #ccc">Negara Lahir</td><td style="padding:4px 8px;border:1px solid #ccc">${g('d-negara')||'Indonesia'}</td></tr>
+  </table>
+  <table style="width:100%;border-collapse:collapse;margin-bottom:12px">
+    <tr style="background:#f5f5f5"><td colspan="3" style="padding:5px 8px;font-weight:bold;font-size:9px;text-transform:uppercase;letter-spacing:1px">Cause of Death — ICD-10</td></tr>
+    <tr style="background:#fafafa"><td colspan="3" style="padding:4px 8px;font-size:9px;font-style:italic">Part I — Disease/conditions directly leading to death</td></tr>
+    <tr><td style="padding:4px 8px;border:1px solid #ccc;font-size:9px">I(a) Immediate cause</td><td style="padding:4px 8px;border:1px solid #ccc">${docICDs[0]?.di||docICDs[0]?.d||'—'}</td><td style="padding:4px 8px;border:1px solid #ccc;font-family:monospace;font-weight:bold;color:#1565c0;white-space:nowrap">${docICDs[0]?.code||'—'}</td></tr>
+    <tr><td style="padding:4px 8px;border:1px solid #ccc;font-size:9px">I(b) Antecedent cause</td><td style="padding:4px 8px;border:1px solid #ccc">${docICDs[1]?.di||docICDs[1]?.d||'—'}</td><td style="padding:4px 8px;border:1px solid #ccc;font-family:monospace;font-weight:bold;color:#1565c0;white-space:nowrap">${docICDs[1]?.code||'—'}</td></tr>
+    <tr style="background:#fafafa"><td colspan="3" style="padding:4px 8px;font-size:9px;font-style:italic">Part II — Other significant conditions</td></tr>
+    <tr><td style="padding:4px 8px;border:1px solid #ccc;font-size:9px">Contributing</td><td style="padding:4px 8px;border:1px solid #ccc">${docICDs[2]?.di||docICDs[2]?.d||'—'}</td><td style="padding:4px 8px;border:1px solid #ccc;font-family:monospace;font-weight:bold;color:#1565c0;white-space:nowrap">${docICDs[2]?.code||'—'}</td></tr>
+  </table>
+  <table style="width:100%;border-collapse:collapse;margin-bottom:12px">
+    <tr><td style="width:45%;padding:4px 8px;border:1px solid #ccc">Tanggal Kematian</td><td style="padding:4px 8px;border:1px solid #ccc">${fmtDate(g('d-tglmati'))}</td></tr>
+    <tr><td style="padding:4px 8px;border:1px solid #ccc">Jam Kematian</td><td style="padding:4px 8px;border:1px solid #ccc">${g('d-jammati')||'—'}</td></tr>
+    <tr><td style="padding:4px 8px;border:1px solid #ccc">Tempat Kematian</td><td style="padding:4px 8px;border:1px solid #ccc">${g('d-tempatmati')||'—'}</td></tr>
+    <tr><td style="padding:4px 8px;border:1px solid #ccc">Manner of Death</td><td style="padding:4px 8px;border:1px solid #ccc;font-weight:bold">${g('d-manner')||'—'}</td></tr>
+    <tr><td style="padding:4px 8px;border:1px solid #ccc">Operasi</td><td style="padding:4px 8px;border:1px solid #ccc">${g('d-operasi')||'Tidak'}</td></tr>
+    <tr><td style="padding:4px 8px;border:1px solid #ccc">Status Kehamilan</td><td style="padding:4px 8px;border:1px solid #ccc">${g('d-hamil')||'—'}</td></tr>
+  </table>
+  <div style="display:flex;justify-content:space-between;margin-top:28px;gap:20px">
+    <div style="text-align:center;flex:1"><div style="border-top:1px solid #111;margin-top:48px;padding-top:4px;font-size:10px">Dokter Pemeriksa</div><div style="font-size:11px;margin-top:3px">${g('d-dokter')||'—'}</div></div>
+    <div style="text-align:center;flex:1"><div style="border-top:1px solid #111;margin-top:48px;padding-top:4px;font-size:10px">Tanggal</div><div style="font-size:11px;margin-top:3px">${fmtDate(g('d-tgl'))}</div></div>
+  </div></div>`;
+}
+
+function printDoc() {
+  const html = document.getElementById('ver-content').innerHTML;
+  const w = window.open('', '_blank');
+  w.document.write(`<html><head><title>Dokumen Forensik — ForensMed Pro</title><style>body{font-family:'Times New Roman',serif;font-size:13px;line-height:1.8;color:#111;padding:40px;max-width:700px;margin:0 auto;}@media print{body{padding:20px;}}</style></head><body>${html}</body></html>`);
+  w.document.close(); w.print();
+}
+
+// ══════════════════════════════════════════════════════
+// AI CHAT ASSISTANT
+// ══════════════════════════════════════════════════════
+const suggestions = ['Cara menghitung PMI metode Henssge','Perbedaan luka tembak masuk dan keluar','Tanda asfiksia pada autopsi','Struktur VER sesuai KUHAP','ICD-10 untuk kematian akibat kekerasan','Pemeriksaan korban kekerasan seksual'];
+document.getElementById('ai-suggestions').innerHTML = suggestions.map(s =>
+  `<button class="sug-btn" onclick="document.getElementById('chat-input').value='${s}'">${s}</button>`
+).join('');
+
+async function sendChat() {
+  const inp = document.getElementById('chat-input');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  document.getElementById('chat-send').disabled = true;
+  document.getElementById('ai-suggestions').style.display = 'none';
+
+  appendChat('user', msg);
+  chatHistory.push({role:'user',content:msg});
+
+  appendChat('ai', '...');
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514', max_tokens: 1000,
+        system: 'Kamu adalah ForensMed AI Assistant, asisten AI khusus kedokteran forensik untuk dokter di Indonesia. Keahlian: forensik klinik, patologi forensik, medikolegal Indonesia (KUHAP, UU No.17/2023), klasifikasi luka, autopsi, PMI/tanatologi, ICD-10 forensik, VER, toksikologi, kekerasan seksual, International Death Certificate WHO. Jawab akurat, sistematis, berbasis evidence, dalam Bahasa Indonesia. PENTING: Keputusan klinis akhir tetap wewenang dokter pemeriksa.',
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'Maaf, terjadi kesalahan.';
+    updateLastChat(reply);
+    chatHistory.push({role:'assistant',content:reply});
+  } catch {
+    updateLastChat('Koneksi gagal. Pastikan terhubung ke internet.');
+  }
+  document.getElementById('chat-send').disabled = false;
+}
+
+function appendChat(role, text) {
+  const area = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + (role === 'user' ? 'user' : '');
+  div.innerHTML = role === 'ai'
+    ? `<div class="chat-avatar">🔬</div><div class="chat-bubble ai">${text}</div>`
+    : `<div class="chat-bubble user">${text}</div>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+
+function updateLastChat(text) {
+  const bubbles = document.querySelectorAll('#chat-area .chat-bubble.ai');
+  if (bubbles.length > 0) bubbles[bubbles.length - 1].textContent = text;
+}
+
+// ══════════════════════════════════════════════════════
+// KASUS MANAGEMENT
+// ══════════════════════════════════════════════════════
+function toggleAddCase() {
+  const f = document.getElementById('add-case-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+  if (f.style.display === 'block') {
+    document.getElementById('c-tgl').value = new Date().toISOString().slice(0,10);
+  }
+}
+
+function addCase() {
+  const no = document.getElementById('c-no').value.trim();
+  if (!no) return;
+  cases.push({
+    id: Date.now(), no,
+    nama: document.getElementById('c-nama').value,
+    tgl: document.getElementById('c-tgl').value,
+    jenis: document.getElementById('c-jenis').value,
+    status: document.getElementById('c-status').value,
+    catatan: document.getElementById('c-catatan').value,
+    ver: false,
+  });
+  toggleAddCase();
+  renderCases();
+  updateStats();
+}
+
+function deleteCase(id) {
+  cases = cases.filter(c => c.id !== id);
+  renderCases(); updateStats();
+}
+
+const statusColors = {aktif:'var(--acc2)',selesai:'var(--suc)',ditunda:'var(--gld)'};
+function renderCases() {
+  const list = document.getElementById('case-list');
+  if (cases.length === 0) {
+    list.innerHTML = '<div class="card" style="text-align:center;padding:40px"><div style="font-size:40px;margin-bottom:10px">📁</div><div style="color:var(--mut);font-size:14px">Belum ada kasus. Klik "+ Baru".</div></div>';
+    return;
+  }
+  list.innerHTML = cases.map(c => `
+    <div class="case-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="display:flex;gap:5px;margin-bottom:5px;flex-wrap:wrap">
+            <span class="badge" style="color:var(--acc);background:rgba(0,212,176,.12)">${c.no}</span>
+            <span class="badge" style="color:${statusColors[c.status]};background:${statusColors[c.status].replace('var','rgba').replace(')','')},.12)">${c.status.toUpperCase()}</span>
+            <span class="badge" style="color:var(--mut);background:var(--tag)">${c.jenis}</span>
+          </div>
+          <div style="font-size:15px;font-weight:700;color:var(--txt)">${c.nama||'—'}</div>
+          <div style="font-size:12px;color:var(--mut);margin-top:3px">📅 ${fmtDate(c.tgl)}</div>
+        </div>
+        <button onclick="deleteCase(${c.id})" style="background:none;border:none;color:var(--mut);cursor:pointer;font-size:18px;padding:4px">✕</button>
+      </div>
+      ${c.catatan ? `<div style="margin-top:10px;font-size:12px;color:var(--mut);background:var(--sur2);border-radius:6px;padding:7px 10px">${c.catatan}</div>` : ''}
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// WHO MODAL
+// ══════════════════════════════════════════════════════
+function openWHOModal() {
+  const content = document.getElementById('who-modal-content');
+  const isActive = WHO_CONFIG.enabled && WHO_CONFIG.clientId;
+  content.innerHTML = isActive
+    ? `<div style="text-align:center;padding:20px 0">
+        <div style="font-size:40px;margin-bottom:12px">✅</div>
+        <div style="font-size:16px;font-weight:700;color:var(--suc);margin-bottom:8px">WHO API Aktif!</div>
+        <div style="font-size:13px;color:var(--mut);line-height:1.6">ForensMed Pro terhubung ke WHO ICD-10 API.<br>Akses 14.400+ kode resmi tersedia di tab ICD-10.</div>
+      </div>`
+    : `<div>${['Daftar di icd.who.int/icdapi','Dapatkan Client ID & Secret','Masukkan credentials ke WHO_CONFIG','Deploy ulang ke Netlify'].map((t,i) =>
+        `<div class="who-step"><div class="who-step-num">${i+1}</div><div><div class="who-step-title">${t}</div></div></div>`).join('')}
+      <div class="warn-box">WHO API gratis untuk institusi medis & akademis.</div></div>`;
+  document.getElementById('who-modal').classList.add('open');
+}
+function closeWHOModal() { document.getElementById('who-modal').classList.remove('open'); }
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+document.getElementById('d-tgl').value = new Date().toISOString().slice(0,10);
+document.getElementById('d-tglmati').value = new Date().toISOString().slice(0,10);
+renderICD(getFavorites());
+renderCases();
+updateWHOStatus();
+</script>
+</body>
+</html>
