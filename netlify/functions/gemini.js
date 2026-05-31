@@ -18,51 +18,58 @@ exports.handler = async (event) => {
     const body = JSON.parse(event.body);
     const { messages, system } = body;
 
-    // Build Gemini contents
-    const contents = [];
-
-    // Add system prompt as first exchange
+    // Build simple prompt text
+    let prompt = '';
     if (system) {
-      contents.push({ role: 'user', parts: [{ text: system }] });
-      contents.push({ role: 'model', parts: [{ text: 'Siap. Saya akan mengikuti instruksi tersebut sebagai asisten forensik medikolegal Indonesia.' }] });
+      prompt += system + '\n\n';
     }
-
-    // Add conversation messages
     for (const msg of messages) {
-      contents.push({
-        role: msg.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: msg.content }]
-      });
+      if (msg.role === 'user') {
+        prompt += 'User: ' + msg.content + '\n';
+      } else {
+        prompt += 'Assistant: ' + msg.content + '\n';
+      }
     }
+    prompt += 'Assistant:';
 
     const apiKey = process.env.GEMINI_API_KEY;
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+    
+    if (!apiKey) {
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          content: [{ type: 'text', text: 'Error: GEMINI_API_KEY tidak ditemukan di environment variables.' }]
+        }),
+      };
+    }
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const geminiRes = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents,
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1024,
-          topP: 0.9,
-        },
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
       }),
     });
 
     const geminiData = await geminiRes.json();
+    
+    // Log for debugging
+    console.log('Gemini status:', geminiRes.status);
+    console.log('Gemini response:', JSON.stringify(geminiData).slice(0, 500));
 
-    // Extract text from response
     const text = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!text) {
-      console.error('Gemini response:', JSON.stringify(geminiData));
+      const errMsg = geminiData?.error?.message || JSON.stringify(geminiData);
       return {
         statusCode: 200,
         headers,
         body: JSON.stringify({
-          content: [{ type: 'text', text: 'Maaf, terjadi kesalahan pada AI. Silakan coba lagi.' }]
+          content: [{ type: 'text', text: `Gemini error: ${errMsg}` }]
         }),
       };
     }
@@ -76,12 +83,11 @@ exports.handler = async (event) => {
     };
 
   } catch (error) {
-    console.error('Function error:', error);
     return {
-      statusCode: 500,
+      statusCode: 200,
       headers,
       body: JSON.stringify({
-        content: [{ type: 'text', text: `Error: ${error.message}` }]
+        content: [{ type: 'text', text: `Function error: ${error.message}` }]
       }),
     };
   }
