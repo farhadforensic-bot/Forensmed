@@ -18,7 +18,6 @@ exports.handler = async (event) => {
     const body = JSON.parse(event.body);
     const { messages, system } = body;
 
-    // Build prompt
     let prompt = '';
     if (system) prompt += system + '\n\n';
     for (const msg of messages) {
@@ -31,8 +30,8 @@ exports.handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify({ content: [{ type: 'text', text: 'Error: API key tidak ditemukan.' }] }) };
     }
 
-    // ✅ Gunakan model yang benar
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // ✅ Gunakan gemini-2.0-flash — model terbaru yang tersedia
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
     const res = await fetch(url, {
       method: 'POST',
