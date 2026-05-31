@@ -1,80 +1,88 @@
 exports.handler = async (event) => {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Content-Type': 'application/json',
+  };
+
   if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      },
-      body: '',
-    };
+    return { statusCode: 200, headers, body: '' };
   }
 
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
 
   try {
-    const { messages, system } = JSON.parse(event.body);
-    
-    // Convert messages format for Gemini
-    const contents = messages.map(m => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }]
-    }));
+    const body = JSON.parse(event.body);
+    const { messages, system } = body;
 
-    // Add system as first user message if provided
+    // Build Gemini contents
+    const contents = [];
+
+    // Add system prompt as first exchange
     if (system) {
-      contents.unshift({
-        role: 'user',
-        parts: [{ text: `[System Instructions]: ${system}` }]
-      });
-      contents.splice(1, 0, {
-        role: 'model', 
-        parts: [{ text: 'Understood. I will follow these instructions.' }]
+      contents.push({ role: 'user', parts: [{ text: system }] });
+      contents.push({ role: 'model', parts: [{ text: 'Siap. Saya akan mengikuti instruksi tersebut sebagai asisten forensik medikolegal Indonesia.' }] });
+    }
+
+    // Add conversation messages
+    for (const msg of messages) {
+      contents.push({
+        role: msg.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: msg.content }]
       });
     }
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents,
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 1000,
-          },
-          safetySettings: [
-            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
-            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
-            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-          ]
-        }),
-      }
-    );
+    const apiKey = process.env.GEMINI_API_KEY;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
-    const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Maaf, tidak ada respons.';
+    const geminiRes = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents,
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1024,
+          topP: 0.9,
+        },
+      }),
+    });
+
+    const geminiData = await geminiRes.json();
+
+    // Extract text from response
+    const text = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!text) {
+      console.error('Gemini response:', JSON.stringify(geminiData));
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          content: [{ type: 'text', text: 'Maaf, terjadi kesalahan pada AI. Silakan coba lagi.' }]
+        }),
+      };
+    }
 
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({
         content: [{ type: 'text', text }]
       }),
     };
+
   } catch (error) {
+    console.error('Function error:', error);
     return {
       statusCode: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ error: error.message }),
+      headers,
+      body: JSON.stringify({
+        content: [{ type: 'text', text: `Error: ${error.message}` }]
+      }),
     };
   }
 };
