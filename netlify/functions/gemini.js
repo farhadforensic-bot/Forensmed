@@ -27,11 +27,9 @@ exports.handler = async (event) => {
     const apiKey = process.env.GEMINI_API_KEY;
 
     // Coba beberapa model secara berurutan
-    const models = [
-      'gemini-1.5-flash-8b',
-      'gemini-1.5-flash-8b-001',
-      'gemini-1.0-pro',
-    ];
+    const model = genAI.getGenerativeModel({ 
+  model: "gemini-1.5-flash" // Ubah menjadi ini untuk menggunakan paket gratis yang aktif
+});
 
     let lastError = '';
     for (const model of models) {
