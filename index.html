@@ -130,6 +130,22 @@ textarea{resize:vertical;line-height:1.6;}
 .who-step-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--acc));color:#000;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .who-step-title{font-size:13px;font-weight:700;color:var(--txt);margin-bottom:4px;}
 .who-step-desc{font-size:12px;color:var(--mut);line-height:1.6;}
+/* REEL GENERATOR */
+.reel-frame{position:relative;width:100%;max-width:260px;aspect-ratio:9/16;margin:0 auto;border-radius:16px;overflow:hidden;background:#000;border:2px solid var(--bor);box-shadow:0 8px 24px rgba(0,0,0,.35);}
+.reel-frame canvas,.reel-frame video{width:100%;height:100%;display:block;object-fit:cover;background:#000;}
+.scene-card{background:var(--sur2);border:1px solid var(--bor);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.scene-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.scene-tag{font-size:10px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;}
+.scene-dur{display:flex;align-items:center;gap:4px;}
+.scene-dur input{width:52px;padding:4px 6px;font-size:11px;text-align:center;}
+.scene-del{background:none;border:none;color:var(--mut);cursor:pointer;font-size:14px;padding:2px 4px;}
+.scene-del:hover{color:var(--dan);}
+.reel-total{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--mut);margin:6px 0 14px;padding:8px 12px;background:var(--sur2);border-radius:8px;border:1px solid var(--bor);}
+.reel-total.ok{color:var(--suc);}
+.reel-total.warn{color:var(--gld);}
+.reel-status{text-align:center;font-size:12px;color:var(--mut);margin:10px 0;}
+.reel-toggle{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt);margin-bottom:12px;}
+.reel-toggle input{width:auto;}
 </style>
 </head>
 <body>
@@ -384,6 +400,79 @@ textarea{resize:vertical;line-height:1.6;}
     <div id="case-list"></div>
   </div>
 
+  <!-- PAGE: REEL GENERATOR -->
+  <div class="page" id="page-reel">
+    <div class="page-title">Reel Generator</div>
+    <div class="page-sub">Video edukasi 30–60 detik dari fakta ilmiah terverifikasi — bukan fiksi</div>
+
+    <div class="warn-box">⚠️ Naskah dibuat AI dari pengetahuan ilmiah yang diterima luas. AI dilarang mengarang statistik/kutipan spesifik. <strong>Tetap verifikasi setiap fakta</strong> ke sumber resmi (WHO, jurnal, buku ajar) sebelum dipublikasikan.</div>
+
+    <!-- STEP 1 -->
+    <div class="card" id="reel-step1">
+      <div class="stitle"><span class="stitle-icon">🧠</span><span class="stitle-text">1. Naskah Reel</span></div>
+      <div class="field">
+        <label class="label">Topik / Prompt</label>
+        <textarea id="reel-topic" rows="2" placeholder="Contoh: Tanda-tanda awal kematian secara ilmiah"></textarea>
+      </div>
+      <div class="suggestions" id="reel-suggestions"></div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label">Durasi Target</label>
+          <select id="reel-duration">
+            <option value="30">30 detik</option>
+            <option value="45" selected>45 detik</option>
+            <option value="60">60 detik</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Bahasa</label>
+          <select id="reel-lang">
+            <option value="id" selected>Indonesia</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Sumber / Fakta Rujukan (opsional — sangat disarankan)</label>
+        <textarea id="reel-source" rows="3" placeholder="Tempel fakta/kutipan dari sumber terpercaya (WHO, jurnal, buku ajar) agar AI hanya mengolah data ini, tanpa menambah klaim baru..."></textarea>
+      </div>
+      <div id="reel-script-error" class="warn-box" style="display:none;background:rgba(255,61,94,.08);border-color:rgba(255,61,94,.3)"></div>
+      <button class="btn btn-primary btn-full" id="reel-script-btn" onclick="generateReelScript()">🧠 Buat Naskah</button>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="card" id="reel-step2" style="display:none">
+      <div class="stitle"><span class="stitle-icon">📝</span><span class="stitle-text">2. Edit & Verifikasi Adegan</span></div>
+      <div id="reel-scenes-list"></div>
+      <button class="btn btn-ghost btn-full" style="margin-bottom:10px" onclick="addReelScene()">+ Tambah Adegan</button>
+      <div class="reel-total" id="reel-total">Total durasi: 0 detik</div>
+      <div class="field">
+        <label class="label">Sumber Rujukan (kategori umum)</label>
+        <input type="text" id="reel-sourcenote" placeholder="mis. Buku ajar kedokteran forensik, pedoman WHO">
+      </div>
+      <div class="field">
+        <label class="label">Caption Instagram</label>
+        <textarea id="reel-caption" rows="4"></textarea>
+      </div>
+      <div class="reel-toggle"><input type="checkbox" id="reel-bgm"> <label for="reel-bgm">Tambahkan nada latar lembut (opsional)</label></div>
+      <button class="btn btn-primary btn-full" id="reel-video-btn" onclick="renderReelVideo()">🎬 Buat Video</button>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="card" id="reel-step3" style="display:none">
+      <div class="stitle"><span class="stitle-icon">🎬</span><span class="stitle-text">3. Video Reel</span></div>
+      <div class="reel-frame" id="reel-frame-wrap">
+        <canvas id="reel-canvas" width="1080" height="1920"></canvas>
+      </div>
+      <div class="reel-status" id="reel-status">Menyiapkan...</div>
+      <div id="reel-output-actions" style="display:none">
+        <a class="btn btn-primary btn-full" id="reel-download-btn" style="margin-bottom:8px;text-decoration:none;text-align:center">⬇ Unduh Video</a>
+        <button class="btn btn-outline btn-full" style="margin-bottom:8px" onclick="copyReelCaption(this)">📋 Salin Caption + Hashtag</button>
+        <button class="btn btn-ghost btn-full" onclick="resetReel()">↺ Buat Reel Baru</button>
+      </div>
+    </div>
+  </div>
+
 </div><!-- /content -->
 
 <!-- BOTTOM NAV -->
@@ -394,6 +483,7 @@ textarea{resize:vertical;line-height:1.6;}
   <button class="nav-btn" onclick="goPage('dokumen',this)"><span class="nav-icon">📄</span><span class="nav-label">Dokumen</span></button>
   <button class="nav-btn" onclick="goPage('ai',this)"><span class="nav-icon">🤖</span><span class="nav-label">AI</span></button>
   <button class="nav-btn" onclick="goPage('kasus',this)"><span class="nav-icon">📁</span><span class="nav-label">Kasus</span></button>
+  <button class="nav-btn" onclick="goPage('reel',this)"><span class="nav-icon">🎬</span><span class="nav-label">Reels</span></button>
 </div>
 
 <!-- WHO MODAL -->
@@ -551,6 +641,7 @@ const features = [
   {i:'🧬',l:'ICD-10 Smart Search (WHO API + AI Suggest)'},
   {i:'🤖',l:'AI Assistant Forensik (Claude)'},
   {i:'📁',l:'Manajemen Kasus Lengkap'},
+  {i:'🎬',l:'Reel Generator — Konten Edukasi Berbasis Fakta Ilmiah'},
 ];
 document.getElementById('feature-list').innerHTML = features.map(f =>
   `<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--bor);align-items:center">
@@ -1096,6 +1187,315 @@ function openWHOModal() {
   document.getElementById('who-modal').classList.add('open');
 }
 function closeWHOModal() { document.getElementById('who-modal').classList.remove('open'); }
+
+// ══════════════════════════════════════════════════════
+// REEL GENERATOR — naskah AI berbasis fakta terverifikasi + render video di browser
+// ══════════════════════════════════════════════════════
+let reelScenes = [];
+let reelMeta = { title:'', source_note:'', caption:'', hashtags:[] };
+let reelRecorder = null, reelChunks = [], reelObjectUrl = null, reelAudioCtx = null;
+const REEL_W = 1080, REEL_H = 1920;
+
+const reelTopics = [
+  'Tanda-tanda awal kematian (livor & rigor mortis)',
+  'Bagaimana forensik menentukan waktu kematian',
+  'Fakta ilmiah sidik jari sebagai identitas unik',
+  'Apa itu autopsi forensik dan mengapa penting',
+  'Toksikologi forensik: cara racun terdeteksi di tubuh',
+  'Perbedaan luka tembak masuk dan keluar secara ilmiah',
+];
+document.getElementById('reel-suggestions').innerHTML = reelTopics.map(t =>
+  `<button class="sug-btn" onclick="document.getElementById('reel-topic').value='${t.replace(/'/g,"\\'")}'">${t.slice(0,26)}...</button>`
+).join('');
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+async function generateReelScript() {
+  const topic = document.getElementById('reel-topic').value.trim();
+  const errEl = document.getElementById('reel-script-error');
+  errEl.style.display = 'none';
+  if (!topic) { errEl.textContent = 'Isi topik terlebih dahulu.'; errEl.style.display = 'block'; return; }
+
+  const duration = document.getElementById('reel-duration').value;
+  const lang = document.getElementById('reel-lang').value;
+  const source = document.getElementById('reel-source').value.trim();
+  const btn = document.getElementById('reel-script-btn');
+  btn.disabled = true; btn.textContent = '🧠 Menyusun naskah...';
+
+  const langName = lang === 'en' ? 'English' : 'Bahasa Indonesia';
+  const system = `Kamu adalah penulis naskah video Reels edukasi sains/kedokteran forensik. ATURAN MUTLAK, TANPA PENGECUALIAN:
+1. HANYA gunakan fakta yang benar, telah diverifikasi, dan diterima luas secara ilmiah. DILARANG KERAS mengarang statistik, angka, tanggal, nama studi, atau kutipan spesifik yang tidak bisa dipastikan kebenarannya.
+2. Jika ragu terhadap angka pasti, gunakan deskripsi kualitatif yang diterima ilmu forensik/sains (contoh: "umumnya", "pada sebagian besar kasus") — JANGAN mengarang angka.
+3. DILARANG membuat cerita fiksi, dramatisasi, atau contoh kasus rekaan seolah nyata.
+4. Jika pengguna memberi teks sumber/fakta, gunakan HANYA informasi dari teks itu — jangan menambah klaim baru di luar teks tersebut.
+5. Sebutkan kategori sumber rujukan yang wajar (mis. buku ajar kedokteran forensik, pedoman WHO, konsensus ilmiah) — jangan mengarang judul studi spesifik.
+6. Tulis dalam ${langName}.
+
+Balas HANYA dengan JSON valid (tanpa markdown, tanpa teks lain) dengan struktur persis:
+{"title":"judul singkat","scenes":[{"text":"...","duration":5}],"source_note":"kategori sumber rujukan umum","caption":"caption Instagram siap pakai (tanpa hashtag)","hashtags":["#tag1","#tag2"]}
+
+Ketentuan scenes: 5-8 adegan. Adegan pertama = hook/pembuka yang menarik perhatian dalam 3 detik (maks 12 kata). Adegan terakhir = penutup singkat + ajakan (mis. simpan/ikuti untuk info ilmiah lain), BUKAN klaim faktual baru. Adegan tengah = fakta inti, tiap adegan 1-2 kalimat pendek agar mudah dibaca dalam reel, durasi 3-9 detik per adegan. Total seluruh durasi scenes harus mendekati ${duration} detik (target 30-60 detik).`;
+
+  const userMsg = source
+    ? `Topik: "${topic}"\n\nGunakan HANYA fakta dari sumber berikut, jangan menambah klaim baru:\n"""${source}"""`
+    : `Topik: "${topic}"`;
+
+  try {
+    const res = await fetch('/.netlify/functions/claude', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514', max_tokens: 1500,
+        system, messages: [{role:'user', content: userMsg}]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.[0]?.text || '';
+    const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    if (!parsed.scenes || !parsed.scenes.length) throw new Error('empty');
+    reelScenes = parsed.scenes.map(s => ({ text: String(s.text||'').trim(), duration: Math.max(2, Math.round(Number(s.duration)||5)) }));
+    reelMeta = { title: parsed.title || topic, source_note: parsed.source_note || '', caption: parsed.caption || '', hashtags: Array.isArray(parsed.hashtags) ? parsed.hashtags : [] };
+    renderReelScenes();
+    document.getElementById('reel-step2').style.display = 'block';
+    document.getElementById('reel-step2').scrollIntoView({behavior:'smooth'});
+  } catch (e) {
+    errEl.textContent = '⚠️ Gagal membuat naskah. Periksa koneksi atau coba topik lain.';
+    errEl.style.display = 'block';
+  }
+  btn.disabled = false; btn.textContent = '🧠 Buat Naskah';
+}
+
+function renderReelScenes() {
+  const list = document.getElementById('reel-scenes-list');
+  list.innerHTML = reelScenes.map((s,i) => {
+    const tag = i === 0 ? 'Hook / Pembuka' : (i === reelScenes.length-1 ? 'Penutup / CTA' : 'Fakta ' + i);
+    return `<div class="scene-card">
+      <div class="scene-card-head">
+        <span class="scene-tag">${tag}</span>
+        <div class="scene-dur">
+          <input type="number" min="2" max="20" value="${s.duration}" onchange="updateReelSceneDuration(${i}, this.value)"> <span style="font-size:11px;color:var(--mut)">detik</span>
+          ${reelScenes.length > 3 ? `<button class="scene-del" onclick="removeReelScene(${i})">✕</button>` : ''}
+        </div>
+      </div>
+      <textarea rows="2" oninput="updateReelSceneText(${i}, this.value)">${escapeHtml(s.text)}</textarea>
+    </div>`;
+  }).join('');
+  document.getElementById('reel-sourcenote').value = reelMeta.source_note || '';
+  document.getElementById('reel-caption').value = (reelMeta.caption || '') + (reelMeta.hashtags?.length ? '\n\n' + reelMeta.hashtags.join(' ') : '');
+  updateReelTotal();
+}
+function updateReelSceneText(i, v) { reelScenes[i].text = v; }
+function updateReelSceneDuration(i, v) { reelScenes[i].duration = Math.max(2, Math.round(Number(v) || 5)); updateReelTotal(); }
+function removeReelScene(i) { reelScenes.splice(i,1); renderReelScenes(); }
+function addReelScene() { reelScenes.splice(Math.max(1, reelScenes.length-1), 0, {text:'', duration:5}); renderReelScenes(); }
+function updateReelTotal() {
+  const total = reelScenes.reduce((a,s) => a+s.duration, 0);
+  const el = document.getElementById('reel-total');
+  const inRange = total >= 30 && total <= 60;
+  el.textContent = `Total durasi: ${total} detik` + (inRange ? ' ✓ sesuai target Reels' : ' — target ideal 30–60 detik');
+  el.className = 'reel-total ' + (inRange ? 'ok' : 'warn');
+}
+
+function wrapCanvasText(ctx, text, maxWidth) {
+  const words = String(text).split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = '';
+  for (const w of words) {
+    const test = line ? line + ' ' + w : w;
+    if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = w; }
+    else { line = test; }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function drawReelFrame(ctx, t) {
+  const scene = reelScenes[t.sceneIdx];
+  const isHook = t.sceneIdx === 0;
+  const isOutro = t.sceneIdx === reelScenes.length - 1;
+
+  const angle = t.globalT * Math.PI * 0.6;
+  const cx = REEL_W/2 + Math.cos(angle) * 200;
+  const cy = REEL_H/2 + Math.sin(angle) * 300;
+  const grad = ctx.createRadialGradient(cx, cy, 0, REEL_W/2, REEL_H/2, REEL_H*0.9);
+  grad.addColorStop(0, '#0f2035');
+  grad.addColorStop(0.55, '#0b1726');
+  grad.addColorStop(1, '#060c16');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, REEL_W, REEL_H);
+
+  let alpha = 1;
+  if (t.sceneT < t.fadeInFrac) alpha = t.sceneT / t.fadeInFrac;
+  else if (t.sceneT > 1 - t.fadeOutFrac) alpha = (1 - t.sceneT) / t.fadeOutFrac;
+  alpha = Math.max(0, Math.min(1, alpha));
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = isHook ? '#f0b840' : (isOutro ? '#00d4b0' : '#cce4f5');
+  const fontSize = isHook ? 76 : 64;
+  ctx.font = `700 ${fontSize}px "Instrument Sans", sans-serif`;
+  const lines = wrapCanvasText(ctx, scene.text, REEL_W - 160);
+  const lineHeight = fontSize * 1.35;
+  const startY = REEL_H/2 - ((lines.length-1) * lineHeight)/2;
+  lines.forEach((line, i) => ctx.fillText(line, REEL_W/2, startY + i*lineHeight));
+
+  ctx.font = `600 28px "JetBrains Mono", monospace`;
+  ctx.fillStyle = 'rgba(204,228,245,.55)';
+  ctx.textAlign = 'left';
+  ctx.fillText(`${t.sceneIdx+1}/${reelScenes.length}`, 48, 90);
+
+  if (!isHook && !isOutro && reelMeta.source_note) {
+    ctx.textAlign = 'center';
+    ctx.font = `500 26px "Instrument Sans", sans-serif`;
+    ctx.fillStyle = 'rgba(204,228,245,.5)';
+    ctx.fillText('Sumber: ' + reelMeta.source_note, REEL_W/2, REEL_H - 160);
+  }
+
+  ctx.textAlign = 'center';
+  ctx.font = `700 30px "Playfair Display", serif`;
+  ctx.fillStyle = 'rgba(0,212,176,.75)';
+  ctx.fillText('🔬 ForensMed Pro', REEL_W/2, REEL_H - 90);
+  ctx.restore();
+
+  ctx.fillStyle = 'rgba(255,255,255,.12)';
+  ctx.fillRect(60, 50, REEL_W-120, 10);
+  const g2 = ctx.createLinearGradient(60,0,REEL_W-60,0);
+  g2.addColorStop(0, '#0066ff'); g2.addColorStop(1, '#00d4b0');
+  ctx.fillStyle = g2;
+  ctx.fillRect(60, 50, (REEL_W-120) * t.globalT, 10);
+}
+
+async function renderReelVideo() {
+  if (!reelScenes.length) return;
+  document.getElementById('reel-step3').style.display = 'block';
+  document.getElementById('reel-output-actions').style.display = 'none';
+  const statusEl = document.getElementById('reel-status');
+  statusEl.textContent = 'Menyiapkan perekaman...';
+  document.getElementById('reel-step3').scrollIntoView({behavior:'smooth'});
+
+  if (document.fonts && document.fonts.ready) await document.fonts.ready;
+
+  const canvas = document.getElementById('reel-canvas');
+  canvas.style.display = 'block';
+  const existingPreview = document.getElementById('reel-preview');
+  if (existingPreview) existingPreview.style.display = 'none';
+  const ctx = canvas.getContext('2d');
+  const totalDuration = reelScenes.reduce((a,s) => a+s.duration, 0);
+
+  const mimeCandidates = ['video/mp4;codecs=h264,aac','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];
+  const mimeType = mimeCandidates.find(m => window.MediaRecorder && MediaRecorder.isTypeSupported(m)) || '';
+  const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+
+  const canvasStream = canvas.captureStream(30);
+
+  let audioCtx = null;
+  if (document.getElementById('reel-bgm').checked) {
+    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    const dest = audioCtx.createMediaStreamDestination();
+    const master = audioCtx.createGain();
+    master.gain.value = 0.06;
+    master.connect(dest);
+    [220, 277.18, 329.63].forEach((freq, i) => {
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sine'; osc.frequency.value = freq;
+      const g = audioCtx.createGain(); g.gain.value = 0.5/(i+1);
+      osc.connect(g); g.connect(master);
+      osc.start();
+    });
+    dest.stream.getAudioTracks().forEach(tr => canvasStream.addTrack(tr));
+    reelAudioCtx = audioCtx;
+  }
+
+  reelChunks = [];
+  let recorder;
+  try { recorder = new MediaRecorder(canvasStream, mimeType ? { mimeType, videoBitsPerSecond: 6000000 } : {}); }
+  catch (e) { recorder = new MediaRecorder(canvasStream); }
+  reelRecorder = recorder;
+  recorder.ondataavailable = e => { if (e.data && e.data.size) reelChunks.push(e.data); };
+  const finished = new Promise(resolve => { recorder.onstop = resolve; });
+  recorder.start();
+
+  const sceneStartOffsets = [];
+  let acc = 0;
+  reelScenes.forEach(s => { sceneStartOffsets.push(acc); acc += s.duration; });
+  const startTime = performance.now();
+
+  await new Promise(resolve => {
+    function frame() {
+      const elapsed = (performance.now() - startTime) / 1000;
+      if (elapsed >= totalDuration) {
+        drawReelFrame(ctx, { sceneIdx: reelScenes.length-1, sceneT: 1, globalT: 1, fadeInFrac: 0.06, fadeOutFrac: 0.06 });
+        statusEl.textContent = 'Menyelesaikan video...';
+        resolve();
+        return;
+      }
+      let idx = 0;
+      for (let i = reelScenes.length-1; i >= 0; i--) { if (elapsed >= sceneStartOffsets[i]) { idx = i; break; } }
+      const sceneDur = reelScenes[idx].duration;
+      const sceneT = Math.max(0, Math.min(1, (elapsed - sceneStartOffsets[idx]) / sceneDur));
+      const globalT = elapsed / totalDuration;
+      drawReelFrame(ctx, { sceneIdx: idx, sceneT, globalT, fadeInFrac: Math.min(0.25, 0.5/sceneDur), fadeOutFrac: Math.min(0.25, 0.5/sceneDur) });
+      const mm = Math.floor(elapsed/60), ss = Math.floor(elapsed%60);
+      statusEl.textContent = `Merekam adegan ${idx+1}/${reelScenes.length} — ${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')} / ${Math.round(totalDuration)}s`;
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  });
+
+  setTimeout(() => { recorder.stop(); if (audioCtx) audioCtx.close(); }, 200);
+  await finished;
+
+  const blob = new Blob(reelChunks, { type: mimeType || 'video/webm' });
+  if (reelObjectUrl) URL.revokeObjectURL(reelObjectUrl);
+  reelObjectUrl = URL.createObjectURL(blob);
+
+  canvas.style.display = 'none';
+  let videoEl = document.getElementById('reel-preview');
+  if (!videoEl) {
+    videoEl = document.createElement('video');
+    videoEl.id = 'reel-preview';
+    videoEl.controls = true; videoEl.playsInline = true;
+    document.getElementById('reel-frame-wrap').appendChild(videoEl);
+  }
+  videoEl.style.display = 'block';
+  videoEl.src = reelObjectUrl;
+
+  const dl = document.getElementById('reel-download-btn');
+  dl.href = reelObjectUrl;
+  dl.download = `reel-${(reelMeta.title||'forensmed').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40)}.${ext}`;
+
+  statusEl.textContent = mimeType.includes('mp4')
+    ? 'Selesai! Video siap diunduh (MP4).'
+    : 'Selesai! Video siap diunduh (WebM). Jika Instagram menolak format ini, konversi cepat ke MP4 sebelum diunggah.';
+  document.getElementById('reel-output-actions').style.display = 'block';
+}
+
+function copyReelCaption(btn) {
+  const text = document.getElementById('reel-caption').value;
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Disalin!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  }).catch(() => alert('Gagal menyalin. Salin manual dari kolom caption.'));
+}
+
+function resetReel() {
+  reelScenes = [];
+  reelMeta = { title:'', source_note:'', caption:'', hashtags:[] };
+  document.getElementById('reel-topic').value = '';
+  document.getElementById('reel-source').value = '';
+  document.getElementById('reel-step2').style.display = 'none';
+  document.getElementById('reel-step3').style.display = 'none';
+  document.getElementById('reel-output-actions').style.display = 'none';
+  const canvas = document.getElementById('reel-canvas');
+  canvas.style.display = 'block';
+  const videoEl = document.getElementById('reel-preview');
+  if (videoEl) { videoEl.style.display = 'none'; videoEl.src = ''; }
+  if (reelObjectUrl) { URL.revokeObjectURL(reelObjectUrl); reelObjectUrl = null; }
+  document.getElementById('reel-step1').scrollIntoView({behavior:'smooth'});
+}
 
 // ══════════════════════════════════════════════════════
 // INIT
